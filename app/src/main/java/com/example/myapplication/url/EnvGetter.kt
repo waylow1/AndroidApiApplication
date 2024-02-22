@@ -1,24 +1,19 @@
 package com.example.myapplication.url
 
-import android.content.Context
+
+import io.github.cdimascio.dotenv.dotenv
 
 class EnvGetter {
 
-    fun getEnv(context: Context): String {
-        val assetManager = context.assets
-        var url="";
-        try {
-            val inputStream = assetManager.open(".env")
-            val bufferedReader = inputStream.bufferedReader()
-            bufferedReader.useLines { lines ->
-                lines.forEach {
-                    url= it.split("=")[1]
-                }
+    companion object{
+        public fun  getEnv(): String {
+            val dotenv = dotenv {
+                directory = "/assets"
+                filename = "env"
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
+            return dotenv["url"];
         }
-        return url;
     }
+
 
 }
