@@ -2,11 +2,18 @@ package com.example.myapplication
 
 import android.content.Context
 import android.os.Bundle
+<<<<<<< HEAD
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+=======
+import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
+>>>>>>> 24ce2349092665ecabd45dc3087306eebe273819
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -25,9 +32,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat.getString
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import java.util.ResourceBundle
+import com.example.myapplication.url.ApiRequest
 
 class Main : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContent {
             MyApplicationTheme {
@@ -37,6 +46,8 @@ class Main : ComponentActivity() {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     LoginForm(this, login, password, Modifier)
                 }
+                val a =  ApiRequest()
+                Log.v(a.connectionTest(),a.connectionTest())
             }
         }
     }
@@ -75,5 +86,8 @@ fun LoginForm(context: Context, login: MutableState<String>, password: MutableSt
 @Composable
 fun GreetingPreview() {
     MyApplicationTheme {
+        val a =  ApiRequest()
+
+        Log.v(a.connectionTest(),a.connectionTest())
     }
 }
