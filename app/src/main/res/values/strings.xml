@@ -5,5 +5,4 @@
     <string name="password">Password :</string>
     <string name="send">Send</string>
     <string name="form_empty">Please fill the fields</string>
-    <string name="url">https://dev-restandroid.users.info.unicaen.fr/api</string>
 </resources>

@@ -19,14 +19,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.MutableLiveData
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.url.ApiRequest
+import org.json.JSONArray
 import org.json.JSONObject
 
 class Main : ComponentActivity() {
@@ -42,7 +43,12 @@ class Main : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    DataDisplay(apiResult.getAllDives())
+                    val data = apiResult.getAllDives().observeAsState()
+                    if(data.value!=null){
+                        Log.v("Main",data.value.toString())
+                        DataDisplay(JSONArray(data.value!!))
+                    }
+
                 }
             }
         }
@@ -51,9 +57,9 @@ class Main : ComponentActivity() {
 
 
 @Composable
-fun DataDisplay(data : String){
+fun DataDisplay(data: JSONArray){
     Column {
-        Text(text = data)
+        Text(text = data.toString())
     }
 }
 

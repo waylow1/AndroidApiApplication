@@ -2,9 +2,11 @@ package com.example.myapplication.url
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myapplication.BuildConfig
 import com.example.myapplication.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,15 +20,16 @@ import java.net.URL
 class ApiRequest(context: Context) : ViewModel() {
 
     private val url: String
+    private val responseData =  MutableLiveData<String?>(null)
 
 
     init {
 
         val resources = context.resources
-        url = resources.getString(R.string.url)
+        url = BuildConfig.url
     }
 
-    private fun getData(urlParameter : String):String{
+    private fun getData(urlParameter : String):MutableLiveData<String?>{
         val response = StringBuilder()
         viewModelScope.launch(Dispatchers.IO){
             try{
@@ -42,19 +45,20 @@ class ApiRequest(context: Context) : ViewModel() {
                     response.append(line).append("\n")
                 }
                 inputStream.close()
+                responseData.postValue(response.toString())
             }
             catch(e : Exception){
                 Log.v("ApiRequest",e.toString())
             }
         }
-        return response.toString()
+        return responseData
     }
 
-    public fun getAllDivers():String{
+    public fun getAllDivers():MutableLiveData<String?>{
         return getData("/adherents")
     }
 
-    public fun getAllDives():String{
+    public fun getAllDives():MutableLiveData<String?>{
         return getData("/plongees")
     }
 
