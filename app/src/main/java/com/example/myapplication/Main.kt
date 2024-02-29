@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -23,28 +24,40 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.MutableLiveData
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.url.ApiRequest
+import org.json.JSONObject
 
 class Main : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
-        setContent {
-            MyApplicationTheme {
+        setContent { MyApplicationTheme {
+
+                val apiResult = ApiRequest(this);
+
                 val login = remember { mutableStateOf("") }
                 val password = remember { mutableStateOf("") }
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    LoginForm(this, login, password, Modifier)
+                    DataDisplay(apiResult.getAllDives())
                 }
-
             }
         }
     }
 }
+
+
+@Composable
+fun DataDisplay(data : String){
+    Column {
+        Text(text = data)
+    }
+}
+
+
 
 @Composable
 fun LoginForm(
