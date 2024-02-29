@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.url.ApiRequest
+import com.example.myapplication.url.GetRequest
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -35,7 +36,7 @@ class Main : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent { MyApplicationTheme {
 
-                val apiResult = ApiRequest(this);
+                val apiResult = GetRequest(this);
 
                 val login = remember { mutableStateOf("") }
                 val password = remember { mutableStateOf("") }
@@ -45,7 +46,6 @@ class Main : ComponentActivity() {
                 ) {
                     val data = apiResult.getAllDives().observeAsState()
                     if(data.value!=null){
-                        Log.v("Main",data.value.toString())
                         DataDisplay(JSONArray(data.value!!))
                     }
 
@@ -59,7 +59,9 @@ class Main : ComponentActivity() {
 @Composable
 fun DataDisplay(data: JSONArray){
     Column {
-        Text(text = data.toString())
+        for( i in 0 until data.length()){
+            Text(text = data.getJSONObject(i).getInt("id").toString())
+        }
     }
 }
 
