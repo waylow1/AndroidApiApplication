@@ -32,8 +32,20 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 class Main : ComponentActivity() {
+
+    private val PREFS_NAME = "MyPrefsFile"
+    private val FIRST_RUN_KEY = "isFirstRun"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val isFirstRun = prefs.getBoolean(FIRST_RUN_KEY, true)
+
+        if(isFirstRun){
+            prefs.edit().putBoolean("isFirstRun",false).commit()
+        }
+
         setContent { MyApplicationTheme {
 
                 val apiResult = GetRequest(this);
