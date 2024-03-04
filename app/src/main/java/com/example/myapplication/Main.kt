@@ -23,6 +23,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.ui.theme.MyApplicationTheme
@@ -50,8 +52,6 @@ class Main : ComponentActivity() {
 
                 val apiResult = GetRequest(this);
 
-                val login = remember { mutableStateOf("") }
-                val password = remember { mutableStateOf("") }
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -60,55 +60,18 @@ class Main : ComponentActivity() {
                     if(data.value!=null){
                         DataDisplay(JSONArray(data.value!!))
                     }
-
                 }
             }
         }
     }
 }
 
-
 @Composable
 fun DataDisplay(data: JSONArray){
     Column {
+        Text(text = "1", color = Color.Blue)
         for( i in 0 until data.length()){
             Text(text = data.getJSONObject(i).getInt("id").toString())
-        }
-    }
-}
-
-
-
-@Composable
-fun LoginForm(
-    context: Context,
-    login: MutableState<String>,
-    password: MutableState<String>,
-    modifier: Modifier
-) {
-    val t = Toast.makeText(
-        context,
-        stringResource(id = R.string.form_empty),
-        Toast.LENGTH_SHORT
-    )
-    Column {
-        Row {
-            Text(text = stringResource(id = R.string.login))
-            TextField(value = login.value, onValueChange = {
-                login.value = it
-            })
-        }
-        Row {
-            Text(text = stringResource(id = R.string.password))
-            TextField(value = password.value, onValueChange = {
-                password.value = it
-            })
-        }
-        Button(onClick = {
-            if (login.value == "" || password.value == "")
-                t.show()
-        }) {
-            Text(text = stringResource(id = R.string.send))
         }
     }
 }
@@ -117,6 +80,17 @@ fun LoginForm(
 @Composable
 fun GreetingPreview() {
     MyApplicationTheme {
-        
+        val context = LocalContext.current;
+        val apiResult = GetRequest(context);
+
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            val data = apiResult.getAllDives().observeAsState()
+            if(data.value!=null){
+                DataDisplay(JSONArray(data.value!!))
+            }
+        }
     }
 }
