@@ -23,6 +23,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication.ui.theme.MyApplicationTheme
@@ -72,7 +73,7 @@ class Main : ComponentActivity() {
 fun DataDisplay(data: JSONArray){
     Column {
         for( i in 0 until data.length()){
-            Text(text = data.getJSONObject(i).getInt("id").toString())
+            Text(text = data.getJSONObject(i).getInt("id").toString(), color = Color.Green)
         }
     }
 }
