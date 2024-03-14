@@ -7,12 +7,21 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -25,7 +34,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.url.ApiRequest
 import com.example.myapplication.url.GetRequest
@@ -57,7 +68,7 @@ class Main : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val data = apiResult.getAllDives().observeAsState()
+                    val data = apiResult.getAllDivers().observeAsState()
                     if(data.value!=null){
                         DataDisplay(JSONArray(data.value!!))
                     }
@@ -71,53 +82,27 @@ class Main : ComponentActivity() {
 
 @Composable
 fun DataDisplay(data: JSONArray){
-    Column {
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
         for( i in 0 until data.length()){
-            Text(text = data.getJSONObject(i).getInt("id").toString(), color = Color.Green)
+            DiverCard(data = data.getJSONObject(i))
         }
     }
 }
 
-
-
 @Composable
-fun LoginForm(
-    context: Context,
-    login: MutableState<String>,
-    password: MutableState<String>,
-    modifier: Modifier
-) {
-    val t = Toast.makeText(
-        context,
-        stringResource(id = R.string.form_empty),
-        Toast.LENGTH_SHORT
-    )
-    Column {
-        Row {
-            Text(text = stringResource(id = R.string.login))
-            TextField(value = login.value, onValueChange = {
-                login.value = it
-            })
-        }
-        Row {
-            Text(text = stringResource(id = R.string.password))
-            TextField(value = password.value, onValueChange = {
-                password.value = it
-            })
-        }
-        Button(onClick = {
-            if (login.value == "" || password.value == "")
-                t.show()
-        }) {
-            Text(text = stringResource(id = R.string.send))
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MyApplicationTheme {
-        
+fun DiverCard(data: JSONObject) {
+    ElevatedCard(
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 6.dp
+        ),
+        modifier = Modifier.padding(20.dp).fillMaxWidth(0.93f)
+    ) {
+        Text(
+            text = data.getString("prenom") + " " + data.getString("nom").uppercase(),
+            modifier = Modifier.padding(16.dp),
+            textAlign = TextAlign.Left
+        )
     }
 }
