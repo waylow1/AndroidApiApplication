@@ -146,7 +146,7 @@ fun DiverCard(diver: JSONObject, details: JSONObject) {
             }
             Text(
                 text = details.getString("email"),
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(start = 16.dp),
                 color = Color.Gray,
                 textAlign = TextAlign.Left
             )
@@ -154,8 +154,8 @@ fun DiverCard(diver: JSONObject, details: JSONObject) {
                 onClick = {
                     /*edit the diver*/
                 },
-                modifier = Modifier.padding(2.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Yellow)
+                modifier = Modifier.padding(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
                 ) {
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_edit_24),
