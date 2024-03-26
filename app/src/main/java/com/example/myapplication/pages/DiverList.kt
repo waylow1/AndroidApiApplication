@@ -100,8 +100,7 @@ fun DiverCard(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, diver: JSONO
                     updatePage(Pages.DiverModification)
                     updateId(diver.getString("id").toInt())
                 },
-                modifier = Modifier.padding(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Blue, contentColor = Color.White)
+                modifier = Modifier.padding(16.dp)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_edit_24),
