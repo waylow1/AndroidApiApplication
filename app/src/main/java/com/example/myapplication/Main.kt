@@ -2,8 +2,10 @@ package com.example.myapplication
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -49,9 +51,19 @@ class Main : ComponentActivity() {
     private val FIRST_RUN_KEY = "isFirstRun"
     private val page = mutableStateOf(Pages.DiverList)
     private val id = mutableIntStateOf(0)
+    private val onBackPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            if(page.value == Pages.DiverList) { //home page then quit
+                finish()
+            } else {
+                page.value = Pages.DiverList
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        onBackPressedDispatcher.addCallback(this,onBackPressedCallback)
 
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val isFirstRun = prefs.getBoolean(FIRST_RUN_KEY, true)
@@ -97,15 +109,6 @@ class Main : ComponentActivity() {
                     }
                 }
             }
-        }
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if(page.value == Pages.DiverList) {
-            super.onBackPressed()
-        } else {
-            page.value = Pages.DiverList
         }
     }
 }
