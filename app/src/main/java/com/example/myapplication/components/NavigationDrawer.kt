@@ -70,6 +70,9 @@ fun NavigationDrawer(
                     modifier = Modifier
                         .clickable {
                             updatePage(Pages.DiverList)
+                            scope.launch {
+                                drawerState.close()
+                            }
                         }
                         .padding(top = 4.dp),
                     fontSize = 18.sp
@@ -79,6 +82,9 @@ fun NavigationDrawer(
                     modifier = Modifier
                         .clickable {
                             updatePage(Pages.DiveList)
+                            scope.launch {
+                                drawerState.close()
+                            }
                         }
                         .padding(top = 4.dp),
                     fontSize = 18.sp
@@ -88,6 +94,9 @@ fun NavigationDrawer(
                     modifier = Modifier
                         .clickable {
                             /* j'ai rien compris au palanquées */
+                            scope.launch {
+                                drawerState.close()
+                            }
                         }
                         .padding(top = 4.dp),
                     fontSize = 18.sp
@@ -97,6 +106,9 @@ fun NavigationDrawer(
                     modifier = Modifier
                         .clickable {
                             updatePage(Pages.SecuritySheet)
+                            scope.launch {
+                                drawerState.close()
+                            }
                         }
                         .padding(top = 4.dp),
                     fontSize = 18.sp
