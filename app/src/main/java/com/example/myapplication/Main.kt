@@ -115,7 +115,7 @@ class Main : ComponentActivity() {
                             Pages.DiverModification -> {
                                 val diver = apiResult.getDiverById(id.intValue.toString())
                                 if(diver.value != null) {
-                                    DiverModification(id.intValue)
+                                    DiverModification(JSONArray(diver.value!!))
                                 }
                             }
                             Pages.DiverCreation -> DiverCreation()

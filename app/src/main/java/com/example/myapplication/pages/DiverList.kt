@@ -6,11 +6,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -26,25 +30,36 @@ import org.json.JSONObject
 
 @Composable
 fun DiverList(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, divers: JSONArray, details: JSONArray){
-    Column(
-        modifier = Modifier.verticalScroll(rememberScrollState())
-    ) {
-        for( i in 0 until divers.length()){
-            var diverDetailIdx = 0
-            val diver = divers.getJSONObject(i)
-            for( j in 0 until details.length()){
-                if(divers.getJSONObject(j).getString("id") == diver.getString("id")) {
-                    diverDetailIdx = j
+
+    Scaffold(
+        topBar = {
+            // topAppBar contents collapsed
+        },
+        floatingActionButton = {
+            BottomRightButton(updatePage = updatePage)
+        },
+        content = { padding ->
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()).padding(padding)
+            ) {
+                for( i in 0 until divers.length()){
+                    var diverDetailIdx = 0
+                    val diver = divers.getJSONObject(i)
+                    for( j in 0 until details.length()){
+                        if(divers.getJSONObject(j).getString("id") == diver.getString("id")) {
+                            diverDetailIdx = j
+                        }
+                    }
+                    DiverCard(
+                        updatePage = updatePage,
+                        updateId = updateId,
+                        diver = divers.getJSONObject(i),
+                        details.getJSONObject(diverDetailIdx)
+                    )
                 }
             }
-            DiverCard(
-                updatePage = updatePage,
-                updateId = updateId,
-                diver = divers.getJSONObject(i),
-                details.getJSONObject(diverDetailIdx)
-            )
         }
-    }
+    )
 }
 
 @Composable
@@ -108,5 +123,18 @@ fun DiverCard(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, diver: JSONO
                 )
             }
         }
+    }
+}
+
+@Composable
+fun BottomRightButton(updatePage: (Pages) -> Unit) {
+    FloatingActionButton(
+        onClick = {
+            updatePage(Pages.DiverCreation)
+        },
+        containerColor = Color.Green,
+
+        ) {
+        Icon(Icons.Filled.Add, "Floating action button.")
     }
 }
