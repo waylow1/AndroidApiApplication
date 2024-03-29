@@ -3,6 +3,7 @@ package com.example.myapplication
 import android.content.Context
 import android.content.res.Resources.Theme
 import android.os.Bundle
+import android.util.Log
 
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
@@ -62,7 +63,7 @@ class Main : ComponentActivity() {
 
     private val PREFS_NAME = "MyPrefsFile"
     private val FIRST_RUN_KEY = "isFirstRun"
-    private val page = mutableStateOf(Pages.DiverList)
+    private val page = mutableStateOf(Pages.DiveList)
     private val id = mutableIntStateOf(0)
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
@@ -109,7 +110,8 @@ class Main : ComponentActivity() {
                                                 newId: Int -> id.intValue = newId
                                         },
                                         divers = JSONArray(divers.value!!),
-                                        details = JSONArray(details.value!!))
+                                        details = JSONArray(details.value!!)
+                                    )
                                 }
                             }
                             Pages.DiverModification -> {
@@ -119,7 +121,24 @@ class Main : ComponentActivity() {
                                 }
                             }
                             Pages.DiverCreation -> DiverCreation()
-                            Pages.DiveList -> DiveList()
+                            Pages.DiveList -> {
+                                val dives = apiResult.getAllDives().observeAsState()
+                                Thread.sleep(10000)
+                                val sites = apiResult.getAllLocations().observeAsState()
+                                if(/*dives.value != null && */sites.value != null) {
+                                    /*DiveList(
+                                        updatePage = {
+                                                newPage: Pages -> page.value = newPage
+                                        },
+                                        updateId = {
+                                                newId: Int -> id.intValue = newId
+                                        },
+                                        dives = JSONArray(dives.value!!),
+                                        sites = JSONArray(sites.value!!)
+                                    )*/
+                                    Text(text = sites.value.toString())
+                                }
+                            }
                             Pages.DiveModification -> DiveModification()
                             Pages.DiveCreation -> DiveCreation()
                             Pages.SecuritySheet -> {}
