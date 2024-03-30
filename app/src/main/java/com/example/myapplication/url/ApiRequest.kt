@@ -28,4 +28,8 @@ open class ApiRequest(context: Context) : ViewModel() {
         url = BuildConfig.url
     }
 
+    fun getLiveData() : MutableLiveData<String?>{
+        return responseData;
+    }
+
 }

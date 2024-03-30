@@ -14,10 +14,9 @@ import java.net.URL
 
 class GetRequest(context: Context) : ApiRequest(context) {
 
-
-
     private fun getData(urlParameter : String): MutableLiveData<String?> {
         val response = StringBuilder()
+        responseData.postValue(null)
         viewModelScope.launch(Dispatchers.IO){
             try{
                 val urlForRequest = url+urlParameter
@@ -32,7 +31,6 @@ class GetRequest(context: Context) : ApiRequest(context) {
                     response.append(line).append("\n")
                 }
                 inputStream.close()
-                responseData.postValue(null)
                 responseData.postValue(response.toString())
                 Log.v("REQUEST",response.toString())
             }

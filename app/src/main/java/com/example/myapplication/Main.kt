@@ -10,6 +10,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.livedata.observeAsState
@@ -63,7 +64,18 @@ class Main : ComponentActivity() {
                 val apiResultDives = GetRequest(this);
                 val apiResultLocation = GetRequest(this);
                 val apiResultForADive = GetRequest(this);
-                Surface(
+
+                val divers = apiResultDivers.getLiveData().observeAsState();
+                val details = apiResultDetails.getLiveData().observeAsState();
+
+                val diver = apiResultDiversId.getLiveData().observeAsState();
+
+                val dives = apiResultDives.getLiveData().observeAsState()
+                val sites = apiResultLocation.getLiveData().observeAsState()
+
+                val dive = apiResultForADive.getLiveData().observeAsState()
+
+            Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
@@ -73,12 +85,13 @@ class Main : ComponentActivity() {
                     ) {
                         when(page.value) {
                             Pages.DiverList -> {
-                                val divers = apiResultDivers.getAllDivers().observeAsState()
-                                val details = apiResultDetails.getDiverDetails().observeAsState()
+                                apiResultDivers.getAllDivers()
+                                apiResultDetails.getDiverDetails()
                                 if(divers.value != null && details.value != null){
                                     DiverList(
                                         updatePage = {
                                                 newPage: Pages -> page.value = newPage
+                                                apiResultDiversId.getDiverById(diverID.intValue.toString())
                                         },
                                         updateId = {
                                                 newId: Int -> diverID.intValue = newId
@@ -89,19 +102,21 @@ class Main : ComponentActivity() {
                                 }
                             }
                             Pages.DiverModification -> {
-                                val diver = apiResultDiversId.getDiverById(diverID.intValue.toString()).observeAsState()
                                 if(diver.value != null) {
                                     DiverModification(diver.value!!)
+                                }else{
+                                    CircularProgressIndicator()
                                 }
                             }
                             Pages.DiverCreation -> DiverCreation()
                             Pages.DiveList -> {
-                                val dives = apiResultDives.getAllDives().observeAsState()
-                                val sites = apiResultLocation.getAllLocations().observeAsState()
+                                apiResultDives.getAllDives()
+                                apiResultLocation.getAllLocations()
                                 if(dives.value != null && sites.value != null) {
                                     DiveList(
                                         updatePage = {
                                                 newPage: Pages -> page.value = newPage
+                                                apiResultForADive.getDiveById(diveID.intValue.toString())
                                         },
                                         updateId = {
                                                 newId: Int -> diveID.intValue = newId
@@ -112,10 +127,10 @@ class Main : ComponentActivity() {
                                 }
                             }
                             Pages.DiveModification -> {
-                                val dive = apiResultForADive.getDiveById(diveID.intValue.toString()).observeAsState()
-                                Log.v("test",dive.value.toString())
                                 if(dive.value!=null){
                                     DiveModification(dive.value!!)
+                                }else{
+                                    CircularProgressIndicator()
                                 }
                             }
                             Pages.DiveCreation -> DiveCreation()
