@@ -42,7 +42,7 @@ fun DiveList(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, dives: JSONAr
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())
                     .padding(padding)
-            ) {/*
+            ) {
                 for( i in 0 until dives.length()){
                     var siteIdx = 0
                     val dive = dives.getJSONObject(i)
@@ -58,7 +58,7 @@ fun DiveList(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, dives: JSONAr
                             break
                         }
                     }
-                }*/
+                }
                 Text(
                     text = sites.toString()
                 )
@@ -110,7 +110,7 @@ fun DiveCard(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, dive: JSONObj
                 )
             }
             Text(
-                text = site.toString(), /* getString("libelle") */
+                text = site.getString("libelle"), /* getString("libelle") */
                 modifier = Modifier.padding(start = 16.dp),
                 color = Color.Gray,
                 textAlign = TextAlign.Left

@@ -36,7 +36,7 @@ fun DiverCreation() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Création d'un Plongueur",
+            text = "Création d'un Plongeur",
             modifier = Modifier.padding(bottom = 10.dp)
         )
         Column(

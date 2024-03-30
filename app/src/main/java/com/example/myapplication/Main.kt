@@ -63,7 +63,7 @@ class Main : ComponentActivity() {
 
     private val PREFS_NAME = "MyPrefsFile"
     private val FIRST_RUN_KEY = "isFirstRun"
-    private val page = mutableStateOf(Pages.DiveList)
+    private val page = mutableStateOf(Pages.DiverList)
     private val id = mutableIntStateOf(0)
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
@@ -88,6 +88,7 @@ class Main : ComponentActivity() {
 
         setContent { MyApplicationTheme {
                 val apiResultDivers = GetRequest(this);
+                val apiResultDiversId = GetRequest(this);
                 val apiResultDetails = GetRequest(this);
                 val apiResultDives = GetRequest(this);
                 val apiResultLocation = GetRequest(this);
@@ -117,15 +118,15 @@ class Main : ComponentActivity() {
                                 }
                             }
                             Pages.DiverModification -> {
-                                val diver = apiResultDivers.getDiverById(id.intValue.toString())
+                                val diver = apiResultDiversId.getDiverById(id.intValue.toString()).observeAsState()
+                                Log.v("test",diver.value.toString())
                                 if(diver.value != null) {
-                                    DiverModification(JSONArray(diver.value!!))
+                                    DiverModification(diver.value!!)
                                 }
                             }
                             Pages.DiverCreation -> DiverCreation()
                             Pages.DiveList -> {
                                 val dives = apiResultDives.getAllDives().observeAsState()
-                                Thread.sleep(10000)
                                 val sites = apiResultLocation.getAllLocations().observeAsState()
                                 if(dives.value != null && sites.value != null) {
                                     DiveList(
@@ -138,12 +139,10 @@ class Main : ComponentActivity() {
                                         dives = JSONArray(dives.value!!),
                                         sites = JSONArray(sites.value!!)
                                     )
-                                    Text(text = sites.value.toString())
                                 }
                             }
                             Pages.DiveModification -> DiveModification()
                             Pages.DiveCreation -> DiveCreation()
-                            Pages.SecuritySheet -> {}
                         }
                     }
 

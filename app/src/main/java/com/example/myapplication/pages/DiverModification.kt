@@ -25,8 +25,8 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 @Composable
-fun DiverModification(diver: JSONArray) {
-    val diverData = diver.getJSONObject(0)
+fun DiverModification(data: String) {
+    val diverData = JSONObject(data);
     val name = remember{ mutableStateOf(diverData.getString("nom")) }
     val firstname = remember{ mutableStateOf(diverData.getString("prenom")) }
     val date = remember{ mutableStateOf(diverData.getString("date_certificat_medical")) }

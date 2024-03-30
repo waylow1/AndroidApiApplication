@@ -1,5 +1,6 @@
 package com.example.myapplication.pages
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,7 +31,6 @@ import org.json.JSONObject
 
 @Composable
 fun DiverList(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, divers: JSONArray, details: JSONArray){
-
     Scaffold(
         topBar = {
             // topAppBar contents collapsed
@@ -112,8 +112,8 @@ fun DiverCard(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, diver: JSONO
             )
             Button(
                 onClick = {
-                    updatePage(Pages.DiverModification)
                     updateId(diver.getString("id").toInt())
+                    updatePage(Pages.DiverModification)
                 },
                 modifier = Modifier.padding(16.dp)
             ) {

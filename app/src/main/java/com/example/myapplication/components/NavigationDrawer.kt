@@ -89,30 +89,6 @@ fun NavigationDrawer(
                         .padding(top = 4.dp),
                     fontSize = 18.sp
                 )
-                Text(
-                    text = "Palanquées",
-                    modifier = Modifier
-                        .clickable {
-                            /* j'ai rien compris au palanquées */
-                            scope.launch {
-                                drawerState.close()
-                            }
-                        }
-                        .padding(top = 4.dp),
-                    fontSize = 18.sp
-                )
-                Text(
-                    text = "Fiche de sécurité",
-                    modifier = Modifier
-                        .clickable {
-                            updatePage(Pages.SecuritySheet)
-                            scope.launch {
-                                drawerState.close()
-                            }
-                        }
-                        .padding(top = 4.dp),
-                    fontSize = 18.sp
-                )
             }
         },
         content = {

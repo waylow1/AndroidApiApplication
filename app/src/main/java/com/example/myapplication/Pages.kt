@@ -6,6 +6,5 @@ enum class Pages {
     DiverCreation,
     DiveList,
     DiveModification,
-    DiveCreation,
-    SecuritySheet
+    DiveCreation
 }
