@@ -87,8 +87,10 @@ class Main : ComponentActivity() {
         }
 
         setContent { MyApplicationTheme {
-                val apiResult = GetRequest(this);
-
+                val apiResultDivers = GetRequest(this);
+                val apiResultDetails = GetRequest(this);
+                val apiResultDives = GetRequest(this);
+                val apiResultLocation = GetRequest(this);
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -99,8 +101,8 @@ class Main : ComponentActivity() {
                     ) {
                         when(page.value) {
                             Pages.DiverList -> {
-                                val divers = apiResult.getAllDivers().observeAsState()
-                                val details = apiResult.getDiverDetails().observeAsState()
+                                val divers = apiResultDivers.getAllDivers().observeAsState()
+                                val details = apiResultDetails.getDiverDetails().observeAsState()
                                 if(divers.value != null && details.value != null){
                                     DiverList(
                                         updatePage = {
@@ -115,18 +117,18 @@ class Main : ComponentActivity() {
                                 }
                             }
                             Pages.DiverModification -> {
-                                val diver = apiResult.getDiverById(id.intValue.toString())
+                                val diver = apiResultDivers.getDiverById(id.intValue.toString())
                                 if(diver.value != null) {
                                     DiverModification(JSONArray(diver.value!!))
                                 }
                             }
                             Pages.DiverCreation -> DiverCreation()
                             Pages.DiveList -> {
-                                val dives = apiResult.getAllDives().observeAsState()
+                                val dives = apiResultDives.getAllDives().observeAsState()
                                 Thread.sleep(10000)
-                                val sites = apiResult.getAllLocations().observeAsState()
-                                if(/*dives.value != null && */sites.value != null) {
-                                    /*DiveList(
+                                val sites = apiResultLocation.getAllLocations().observeAsState()
+                                if(dives.value != null && sites.value != null) {
+                                    DiveList(
                                         updatePage = {
                                                 newPage: Pages -> page.value = newPage
                                         },
@@ -135,7 +137,7 @@ class Main : ComponentActivity() {
                                         },
                                         dives = JSONArray(dives.value!!),
                                         sites = JSONArray(sites.value!!)
-                                    )*/
+                                    )
                                     Text(text = sites.value.toString())
                                 }
                             }
