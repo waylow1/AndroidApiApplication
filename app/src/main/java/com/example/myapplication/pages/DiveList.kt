@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FloatingActionButton
@@ -18,12 +19,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.Pages
 import com.example.myapplication.R
+import com.example.myapplication.url.DeleteRequest
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -35,7 +38,7 @@ fun DiveList(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, dives: JSONAr
             // topAppBar contents collapsed
         },
         floatingActionButton = {
-            BottomRightButton(updatePage = updatePage)
+            AddDiveButton(updatePage = updatePage)
         },
         content = { padding ->
             Column(
@@ -69,6 +72,7 @@ fun DiveList(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, dives: JSONAr
 
 @Composable
 fun DiveCard(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, dive: JSONObject, site: JSONObject) {
+    val context = LocalContext.current
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
@@ -117,8 +121,8 @@ fun DiveCard(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, dive: JSONObj
             )
             Button(
                 onClick = {
-                    updatePage(Pages.DiveModification)
                     updateId(dive.getString("id").toInt())
+                    updatePage(Pages.DiveModification)
                 },
                 modifier = Modifier.padding(16.dp)
             ) {
@@ -127,6 +131,31 @@ fun DiveCard(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, dive: JSONObj
                     contentDescription = "modifier"
                 )
             }
+            Button(
+                onClick = {
+                    val delete = DeleteRequest(context);
+                    delete.deleteDiveById(dive.getString("id"))
+                },
+                modifier = Modifier.padding(16.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_delete_forever_24),
+                    contentDescription = "supprimer"
+                )
+            }
         }
+    }
+}
+
+@Composable
+fun AddDiveButton(updatePage: (Pages) -> Unit) {
+    FloatingActionButton(
+        onClick = {
+            updatePage(Pages.DiveCreation)
+        },
+        containerColor = Color.Green,
+
+        ) {
+        Icon(Icons.Filled.Add, "Floating action button.")
     }
 }
