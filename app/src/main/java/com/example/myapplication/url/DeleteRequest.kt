@@ -11,7 +11,7 @@ import java.net.URL
 
 class DeleteRequest(context: Context) : ApiRequest(context){
 
-    public fun deleteDataFromParameterAndId(urlParameter: String, id: String): MutableLiveData<String?> {
+    private fun deleteDataFromParameterAndId(urlParameter: String, id: String): MutableLiveData<String?> {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val urlForRequest = "$url$urlParameter/$id"

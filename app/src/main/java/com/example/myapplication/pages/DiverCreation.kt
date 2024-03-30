@@ -2,6 +2,7 @@ package com.example.myapplication.pages
 
 import android.app.DatePickerDialog
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,8 +20,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.Pages
+import com.example.myapplication.url.PostRequest
+import com.example.myapplication.url.PutRequest
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -31,6 +35,18 @@ fun DiverCreation() {
     val date = remember{ mutableStateOf("") }
     val email = remember{ mutableStateOf("") }
     val level = remember{ mutableStateOf("") }
+    val context = LocalContext.current
+
+    fun createModifiedJSONObject(): JSONObject {
+        val modifiedData = JSONObject()
+        modifiedData.put("nom", name.value)
+        modifiedData.put("prenom", firstname.value)
+        modifiedData.put("date_certificat_medical", date.value)
+        modifiedData.put("email", email.value)
+        modifiedData.put("niveau", level.value)
+        return modifiedData
+    }
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -102,8 +118,9 @@ fun DiverCreation() {
             }
         }
         Button(onClick = {
-            /* call a method passed in argument to update diver */
-
+            val modifiedJSONObject = createModifiedJSONObject()
+            var apiPostRequest = PostRequest(context);
+            apiPostRequest.insertDiver(modifiedJSONObject);
         }) {
             Text(
                 text = "Inscrire"
