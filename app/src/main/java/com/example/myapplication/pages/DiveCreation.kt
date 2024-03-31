@@ -1,63 +1,154 @@
 package com.example.myapplication.pages
 
+import android.util.Log
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.myapplication.Functions.UsefulTools
+import com.example.myapplication.bdd.Levels
+import com.example.myapplication.bdd.MyAppDatabase
+import com.example.myapplication.url.GetRequest
 import com.example.myapplication.url.PostRequest
 import com.example.myapplication.url.PutRequest
+import kotlinx.coroutines.launch
+import org.json.JSONArray
 import org.json.JSONObject
+import kotlin.reflect.typeOf
 
 @Composable
 fun DiveCreation() {
+
     val context = LocalContext.current
+
+    val moments = listOf("Matin", "Après-midi", "Soir")
+
     val date = remember { mutableStateOf("") }
-    val location = remember { mutableStateOf("") }
-    val boat = remember { mutableStateOf("") }
-    val moment = remember { mutableStateOf("") }
     val minPlongeurs = remember { mutableStateOf("") }
     val maxPlongeurs = remember { mutableStateOf("") }
-    val niveau = remember { mutableStateOf("") }
     val pilote = remember { mutableStateOf("") }
     val securiteDeSurface = remember { mutableStateOf("") }
     val directeurDePlongee = remember { mutableStateOf("") }
 
+    /* ApiRequest creations for  all Boats and all Locations */
 
-    fun createModifiedJSONObject(
-        date: String,
-        location: String,
-        boat: String,
-        moment: String,
-        minPlongeurs: String,
-        maxPlongeurs: String,
-        niveau: String,
-        pilote: String,
-        securiteDeSurface: String,
-        directeurDePlongee: String
-    ): JSONObject {
-        val modifiedData = JSONObject()
-        modifiedData.put("date", date)
-        modifiedData.put("lieu", location)
-        modifiedData.put("bateau", boat)
-        modifiedData.put("moment", moment.toInt())
-        modifiedData.put("min_plongeurs", minPlongeurs.toInt())
-        modifiedData.put("max_plongeurs", maxPlongeurs.toInt())
-        modifiedData.put("niveau", niveau.toInt())
-        modifiedData.put("pilote", pilote.toInt())
-        modifiedData.put("securite_de_surface", securiteDeSurface.toInt())
-        modifiedData.put("directeur_de_plongee", directeurDePlongee.toInt())
-        return modifiedData
+    /* ApiRequest Object */
+    val apiRequestAllBoats = GetRequest(context);
+    val apiRequestLocations = GetRequest(context);
+    val apiRequestDivers = GetRequest(context);
+
+    /* LiveData observer */
+    val boats = apiRequestAllBoats.getLiveData().observeAsState();
+    val locations = apiRequestLocations.getLiveData().observeAsState();
+
+    val allPersons = apiRequestDivers.getLiveData().observeAsState();
+
+    /* List rembembers */
+    val boatData = remember { mutableStateOf<List<Pair<Int, String>>>(emptyList()) }
+    val locationData = remember { mutableStateOf<List<Pair<Int, String>>>(emptyList()) }
+
+
+    /* Fetching Api */
+    apiRequestAllBoats.getAllBoats();
+    apiRequestLocations.getAllLocations();
+    apiRequestDivers.getAllPersons();
+
+    if(boats.value!=null){
+        boatData.value = UsefulTools.parseBoatsJson(boats.value.toString())
     }
+
+    if(locations.value!=null){
+        locationData.value=UsefulTools.parseLocationsJson(locations.value.toString())
+    }
+
+    val pilotsMap = mutableMapOf<Int, String>()
+    val securityMap = mutableMapOf<Int, String>()
+    val directorsMap = mutableMapOf<Int, String>()
+
+    if(allPersons.value!=null){
+        val personsJsonString = allPersons.value.toString()
+        val personsJsonArray = JSONArray(personsJsonString)
+        for (i in 0 until personsJsonArray.length()) {
+            val personJsonObject = personsJsonArray.getJSONObject(i)
+            val id = personJsonObject.getInt("id")
+            val nom = personJsonObject.getString("nom")
+
+            if (personJsonObject.optBoolean("pilote", false)) {
+                pilotsMap[id] = nom
+            }
+            if (personJsonObject.optBoolean("securite_de_surface", false)) {
+                securityMap[id] = nom
+            }
+            if (personJsonObject.optBoolean("directeur_de_section", false)) {
+                directorsMap[id] = nom
+            }
+        }
+    }
+
+
+
+    /* Database connection fetching all levels  */
+    val db = MyAppDatabase.getDatabase(context)
+    val levelDao = db.levelDao()
+    val levels = remember { mutableStateOf<List<Levels>>(emptyList()) }
+    LaunchedEffect(true) {
+        levels.value = levelDao.getAllLevels()
+    }
+
+    /* Remembers for selected values */
+
+    val selectedLevelIndex = remember {
+        mutableIntStateOf(-1)
+    }
+
+    val selectedMoment = remember {
+        mutableIntStateOf(-1);
+    }
+
+    val selectedLocationIndex = remember {
+        mutableIntStateOf(-1)
+    }
+
+    val selectedBoatIndex = remember {
+        mutableIntStateOf(-1)
+    }
+
+    /* Remembers for expanded value */
+
+    val expandedBoat = remember {
+        mutableStateOf(false)
+    }
+
+    val expandedLocation = remember {
+        mutableStateOf(false)
+    }
+
+    val expandedLevel = remember {
+        mutableStateOf(false)
+    }
+
+    val expandedMoment = remember {
+        mutableStateOf(false)
+    }
+
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -81,41 +172,45 @@ fun DiveCreation() {
                     value = date.value,
                     onValueChange = {
                         date.value = it
-                    }
+                    }, placeholder = {Text(text = "Format: 2022-02-26")}
                 )
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "Lieu: ")
-                TextField(
-                    value = location.value,
-                    onValueChange = {
-                        location.value = it
-                    }
-                )
+                UsefulTools.DropdownMenuWithState(
+                    items = locationData.value.map { it.second },
+                    selectedValue = selectedLocationIndex,
+                    expandedState = expandedLocation
+                ) { index ->
+                    Log.v("Selected Boat", locationData.value[index].toString())
+                }
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "Bateau: ")
-                TextField(
-                    value = boat.value,
-                    onValueChange = {
-                        boat.value = it
-                    }
-                )
+                UsefulTools.DropdownMenuWithState(
+                    items = boatData.value.map { it.second },
+                    selectedValue = selectedBoatIndex,
+                    expandedState = expandedBoat
+                ) { index ->
+                    // Logique à exécuter lorsque le bateau est sélectionné
+                    Log.v("Selected Boat", boatData.value[index].toString())
+                }
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "Moment: ")
-                TextField(
-                    value = moment.value,
-                    onValueChange = {
-                        moment.value = it
-                    }
-                )
+                UsefulTools.DropdownMenuWithState(
+                    items = moments,
+                    selectedValue = selectedMoment,
+                    expandedState = expandedMoment
+                ){
+                    Log.v("Moment",selectedMoment.intValue.toString())
+                }
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -143,12 +238,13 @@ fun DiveCreation() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "Niveau: ")
-                TextField(
-                    value = niveau.value,
-                    onValueChange = {
-                        niveau.value = it
-                    }
-                )
+                UsefulTools.DropdownMenuWithState(
+                    items = levels.value.map { it.name },
+                    selectedValue = selectedLevelIndex,
+                    expandedState = expandedLevel
+                ) { index ->
+                    Log.v("Level",levels.value.get(selectedLevelIndex.intValue).name)
+                }
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -185,18 +281,19 @@ fun DiveCreation() {
             }
         }
         Button(onClick = {
-            val modifiedJSONObject = createModifiedJSONObject(
+            val modifiedJSONObject = UsefulTools.createModifiedJSONObject(
                 date.value,
-                location.value,
-                boat.value,
-                moment.value,
+                selectedLocationIndex.intValue.toString(),
+                selectedBoatIndex.intValue.toString(),
+                selectedMoment.intValue.toString(),
                 minPlongeurs.value,
                 maxPlongeurs.value,
-                niveau.value,
+                selectedLevelIndex.intValue.toString(),
                 pilote.value,
                 securiteDeSurface.value,
                 directeurDePlongee.value
             )
+
             val apiPostRequest = PostRequest(context);
             apiPostRequest.insertDive(modifiedJSONObject);
         }) {
@@ -207,3 +304,8 @@ fun DiveCreation() {
     }
 
 }
+
+
+
+
+

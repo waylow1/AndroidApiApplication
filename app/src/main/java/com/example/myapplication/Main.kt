@@ -18,6 +18,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
+import com.example.myapplication.bdd.Levels
 import com.example.myapplication.bdd.MyAppDatabase
 import com.example.myapplication.components.NavigationDrawer
 import com.example.myapplication.pages.DiveCreation
@@ -28,7 +30,9 @@ import com.example.myapplication.pages.DiverList
 import com.example.myapplication.pages.DiverModification
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.url.GetRequest
+import kotlinx.coroutines.launch
 import org.json.JSONArray
+import org.json.JSONException
 
 class Main : ComponentActivity() {
 
@@ -56,34 +60,25 @@ class Main : ComponentActivity() {
         onBackPressedDispatcher.addCallback(this,onBackPressedCallback)
 
         db = MyAppDatabase.getDatabase(this);
+
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val isFirstRun = prefs.getBoolean(FIRST_RUN_KEY, true)
-
         if(isFirstRun){
             val apiRequestAllLevels = GetRequest(this)
-
+            val levelDao = db.levelDao()
             apiRequestAllLevels.getLiveData().observe(this) { levels ->
-                Log.v("levels",levels.toString())
+                if(levels!=null){
+                    lifecycleScope.launch {
+                        val levelsList = parseJsonToLevels(levels)
+                        for (level in levelsList) {
+                            levelDao.insert(level)
+                        }
+                    }
+                }
             }
-
             apiRequestAllLevels.getAllLevels()
-            prefs.edit().putBoolean(FIRST_RUN_KEY, true).apply()
+            prefs.edit().putBoolean(FIRST_RUN_KEY, false).apply()
         }
-
-            val apiRequestAllLocations = GetRequest(this)
-            val apiRequestAllBoats = GetRequest(this)
-
-            apiRequestAllBoats.getLiveData().observe(this) { boats ->
-                Log.v("test", boats.toString())
-            }
-
-            apiRequestAllLocations.getLiveData().observe(this){locations->
-                Log.v("locations",locations.toString())
-            }
-
-        apiRequestAllBoats.getAllBoats()
-
-        apiRequestAllLocations.getAllLocations()
 
         setContent { MyApplicationTheme {
                 val apiResultDivers = GetRequest(this);
@@ -173,4 +168,23 @@ class Main : ComponentActivity() {
             }
         }
     }
+}
+
+fun parseJsonToLevels(json: String): List<Levels> {
+    val levelsList = mutableListOf<Levels>()
+
+    try {
+        val jsonArray = JSONArray(json)
+        for (i in 0 until jsonArray.length()) {
+            val jsonObject = jsonArray.getJSONObject(i)
+            val id = jsonObject.getInt("id")
+            val name = jsonObject.getString("libelle")
+            val level = Levels(id, name)
+            levelsList.add(level)
+        }
+    } catch (e: JSONException) {
+        e.printStackTrace()
+    }
+
+    return levelsList
 }

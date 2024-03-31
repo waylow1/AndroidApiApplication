@@ -6,10 +6,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 
-@Database(entities = [Locations::class, Boats::class, Levels::class], version = MyAppDatabase.DATABASE_VERSION)
+@Database(entities =  [Levels::class], version = MyAppDatabase.DATABASE_VERSION)
 abstract class MyAppDatabase : RoomDatabase() {
-    abstract fun locationDao(): LocationDao
-    abstract fun boatDao(): BoatDao
     abstract fun levelDao(): LevelDao
     companion object {
         const val DATABASE_VERSION = 1
