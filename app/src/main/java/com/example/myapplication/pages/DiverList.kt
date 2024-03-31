@@ -129,7 +129,7 @@ fun DiverCard(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, diver: JSONO
             Button(
                 onClick = {
                     val delete = DeleteRequest(context);
-                    delete.deleteDiveById(diver.getString("id"))
+                    delete.deleteDiversById(diver.getString("id"))
                 },
                 modifier = Modifier.padding(16.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
             ) {

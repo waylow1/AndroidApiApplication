@@ -37,7 +37,6 @@ class Main : ComponentActivity() {
     private val page = mutableStateOf(Pages.DiverList)
     private val diverID = mutableIntStateOf(0)
     private val diveID = mutableIntStateOf(0)
-    private val db = MyAppDatabase.getDatabase(this)
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
             if(page.value == Pages.DiverList) { //home page then quit
@@ -60,7 +59,7 @@ class Main : ComponentActivity() {
             val apiRequestAllBoats = GetRequest(this)
             val apiRequestAllLevels = GetRequest(this)
 
-            
+
 
             prefs.edit().putBoolean("isFirstRun",false).apply()
         }

@@ -21,6 +21,7 @@ class DeleteRequest(context: Context) : ApiRequest(context){
                 conn.connect()
 
                 val responseCode = conn.responseCode
+                Log.v("test",responseCode.toString())
                 if (responseCode == HttpURLConnection.HTTP_NO_CONTENT) {
                     responseData.postValue("Deletion successful")
                 } else {
