@@ -55,7 +55,7 @@ class Main : ComponentActivity() {
         super.onCreate(savedInstanceState)
         onBackPressedDispatcher.addCallback(this,onBackPressedCallback)
 
-        //db = MyAppDatabase.getDatabase(this);
+        db = MyAppDatabase.getDatabase(this);
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val isFirstRun = prefs.getBoolean(FIRST_RUN_KEY, true)
 
