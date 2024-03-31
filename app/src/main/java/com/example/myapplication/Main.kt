@@ -18,7 +18,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.myapplication.BDD.MyAppDatabase
+import com.example.myapplication.bdd.MyAppDatabase
 import com.example.myapplication.components.NavigationDrawer
 import com.example.myapplication.pages.DiveCreation
 import com.example.myapplication.pages.DiveList
@@ -32,11 +32,15 @@ import org.json.JSONArray
 
 class Main : ComponentActivity() {
 
-    private val PREFS_NAME = "MyPrefsFile"
-    private val FIRST_RUN_KEY = "isFirstRun"
+    companion object{
+        private val PREFS_NAME = "MyPrefsFile"
+        private val FIRST_RUN_KEY = "isFirstRun"
+    }
+
     private val page = mutableStateOf(Pages.DiverList)
     private val diverID = mutableIntStateOf(0)
     private val diveID = mutableIntStateOf(0)
+    private lateinit var db: MyAppDatabase
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
             if(page.value == Pages.DiverList) { //home page then quit
@@ -51,18 +55,35 @@ class Main : ComponentActivity() {
         super.onCreate(savedInstanceState)
         onBackPressedDispatcher.addCallback(this,onBackPressedCallback)
 
+        //db = MyAppDatabase.getDatabase(this);
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val isFirstRun = prefs.getBoolean(FIRST_RUN_KEY, true)
 
         if(isFirstRun){
-            val apiRequestAllLocations = GetRequest(this)
-            val apiRequestAllBoats = GetRequest(this)
             val apiRequestAllLevels = GetRequest(this)
 
+            apiRequestAllLevels.getLiveData().observe(this) { levels ->
+                Log.v("levels",levels.toString())
+            }
 
-
-            prefs.edit().putBoolean("isFirstRun",false).apply()
+            apiRequestAllLevels.getAllLevels()
+            prefs.edit().putBoolean(FIRST_RUN_KEY, true).apply()
         }
+
+            val apiRequestAllLocations = GetRequest(this)
+            val apiRequestAllBoats = GetRequest(this)
+
+            apiRequestAllBoats.getLiveData().observe(this) { boats ->
+                Log.v("test", boats.toString())
+            }
+
+            apiRequestAllLocations.getLiveData().observe(this){locations->
+                Log.v("locations",locations.toString())
+            }
+
+        apiRequestAllBoats.getAllBoats()
+
+        apiRequestAllLocations.getAllLocations()
 
         setContent { MyApplicationTheme {
                 val apiResultDivers = GetRequest(this);
@@ -143,7 +164,6 @@ class Main : ComponentActivity() {
                             Pages.DiveCreation -> DiveCreation()
                         }
                     }
-
                     NavigationDrawer(
                         updatePage = {
                                 newPage: Pages -> page.value = newPage

@@ -32,7 +32,6 @@ class GetRequest(context: Context) : ApiRequest(context) {
                 }
                 inputStream.close()
                 responseData.postValue(response.toString())
-                Log.v("REQUEST",response.toString())
             }
             catch(e : Exception){
                 Log.v("ApiRequest",e.toString())

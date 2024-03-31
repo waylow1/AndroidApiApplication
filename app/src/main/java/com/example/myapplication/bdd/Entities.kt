@@ -1,4 +1,4 @@
-package com.example.myapplication.BDD
+package com.example.myapplication.bdd
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

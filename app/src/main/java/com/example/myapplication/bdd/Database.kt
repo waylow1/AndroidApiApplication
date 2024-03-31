@@ -1,4 +1,4 @@
-package com.example.myapplication.BDD
+package com.example.myapplication.bdd
 
 import android.content.Context
 import androidx.room.Database

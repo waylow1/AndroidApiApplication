@@ -1,4 +1,4 @@
-package com.example.myapplication.BDD
+package com.example.myapplication.bdd
 
 import androidx.room.Dao
 import androidx.room.Query
