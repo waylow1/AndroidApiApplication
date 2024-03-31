@@ -194,6 +194,7 @@ class Main : ComponentActivity() {
                                         val view = LayoutInflater.from(context).inflate(R.layout.stats, null, true)
                                         val chart = view.findViewById<BarChart>(R.id.martin)
                                         chart.data = data
+                                        chart.setMaxVisibleValueCount(14)
                                         chart.invalidate()
                                         view
                                     }
