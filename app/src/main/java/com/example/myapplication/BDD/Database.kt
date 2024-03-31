@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Locations::class, Boat::class], version = 1)
+@Database(entities = [Locations::class, Boat::class,Level::class], version = 1)
 abstract class MyAppDatabase : RoomDatabase() {
     abstract fun locationDao(): LocationDao
     abstract fun boatDao(): BoatDao

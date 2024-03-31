@@ -18,6 +18,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.myapplication.BDD.MyAppDatabase
 import com.example.myapplication.components.NavigationDrawer
 import com.example.myapplication.pages.DiveCreation
 import com.example.myapplication.pages.DiveList
@@ -36,6 +37,7 @@ class Main : ComponentActivity() {
     private val page = mutableStateOf(Pages.DiverList)
     private val diverID = mutableIntStateOf(0)
     private val diveID = mutableIntStateOf(0)
+    private val db = MyAppDatabase.getDatabase(this)
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
             if(page.value == Pages.DiverList) { //home page then quit
@@ -54,6 +56,12 @@ class Main : ComponentActivity() {
         val isFirstRun = prefs.getBoolean(FIRST_RUN_KEY, true)
 
         if(isFirstRun){
+            val apiRequestAllLocations = GetRequest(this)
+            val apiRequestAllBoats = GetRequest(this)
+            val apiRequestAllLevels = GetRequest(this)
+
+            
+
             prefs.edit().putBoolean("isFirstRun",false).apply()
         }
 

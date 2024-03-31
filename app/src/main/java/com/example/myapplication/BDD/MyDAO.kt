@@ -15,3 +15,11 @@ interface BoatDao {
     @Query("SELECT * FROM boats")
     fun getAllBoats(): List<Boat>
 }
+
+@Dao
+interface LevelDao{
+
+    @Query("select * from levels")
+    fun getAllLevels():List<Level>
+
+}
