@@ -3,7 +3,7 @@ package com.example.myapplication
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-
+import android.view.LayoutInflater
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -13,11 +13,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import com.example.myapplication.bdd.MyAppDatabase
 import com.example.myapplication.components.NavigationDrawer
 import com.example.myapplication.pages.DiveCreation
@@ -28,7 +30,13 @@ import com.example.myapplication.pages.DiverList
 import com.example.myapplication.pages.DiverModification
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.url.GetRequest
+import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
 import org.json.JSONArray
+
+
 
 class Main : ComponentActivity() {
 
@@ -86,22 +94,19 @@ class Main : ComponentActivity() {
         apiRequestAllLocations.getAllLocations()
 
         setContent { MyApplicationTheme {
-                val apiResultDivers = GetRequest(this);
-                val apiResultDiversId = GetRequest(this);
-                val apiResultDetails = GetRequest(this);
-                val apiResultDives = GetRequest(this);
-                val apiResultLocation = GetRequest(this);
-                val apiResultForADive = GetRequest(this);
+            val apiResultDivers = GetRequest(this);
+            val apiResultDiversId = GetRequest(this);
+            val apiResultDetails = GetRequest(this);
+            val apiResultDives = GetRequest(this);
+            val apiResultLocation = GetRequest(this);
+            val apiResultForADive = GetRequest(this);
 
-                val divers = apiResultDivers.getLiveData().observeAsState();
-                val details = apiResultDetails.getLiveData().observeAsState();
-
-                val diver = apiResultDiversId.getLiveData().observeAsState();
-
-                val dives = apiResultDives.getLiveData().observeAsState()
-                val sites = apiResultLocation.getLiveData().observeAsState()
-
-                val dive = apiResultForADive.getLiveData().observeAsState()
+            val divers = apiResultDivers.getLiveData().observeAsState();
+            val details = apiResultDetails.getLiveData().observeAsState();
+            val diver = apiResultDiversId.getLiveData().observeAsState();
+            val dives = apiResultDives.getLiveData().observeAsState()
+            val sites = apiResultLocation.getLiveData().observeAsState()
+            val dive = apiResultForADive.getLiveData().observeAsState()
 
             Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -155,13 +160,45 @@ class Main : ComponentActivity() {
                                 }
                             }
                             Pages.DiveModification -> {
-                                if(dive.value!=null){
+                                if(dive.value != null){
                                     DiveModification(dive.value!!)
                                 }else{
                                     CircularProgressIndicator()
                                 }
                             }
                             Pages.DiveCreation -> DiveCreation()
+                            Pages.Stats -> {
+
+                                val diversJson = JSONArray(divers.value!!)
+                                val statData = ArrayList<BarEntry>()
+
+                                for( i in 0 until 14){
+                                    var count = 0
+
+                                    for( j in 0 until diversJson.length()){
+                                        val currentDiver = diversJson.getJSONObject(j)
+                                        if(currentDiver.getString("niveau").toInt() == i) {
+                                            count++
+                                        }
+                                    }
+                                    val entry = BarEntry(i.toFloat(), count.toFloat())
+                                    statData.add(entry)
+                                }
+
+                                val dataSet = BarDataSet(statData, "Nombre de plongeur par niveau")
+                                val data = BarData(dataSet)
+
+                                AndroidView(
+                                    factory = {
+                                        context ->
+                                        val view = LayoutInflater.from(context).inflate(R.layout.stats, null, true)
+                                        val chart = view.findViewById<BarChart>(R.id.martin)
+                                        chart.data = data
+                                        chart.invalidate()
+                                        view
+                                    }
+                                )
+                            }
                         }
                     }
                     NavigationDrawer(

@@ -45,6 +45,8 @@ android {
     buildFeatures {
         compose = true
         buildConfig=true
+        viewBinding = true
+
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.8"
@@ -61,7 +63,7 @@ android {
 
 dependencies {
 
-
+    implementation("com.github.PhilJay:MPAndroidChart:v3.0.3")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.room:room-ktx:2.6.1")
     implementation("androidx.compose.runtime:runtime-livedata:1.6.4")
