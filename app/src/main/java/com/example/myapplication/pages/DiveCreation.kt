@@ -1,6 +1,7 @@
 package com.example.myapplication.pages
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -71,38 +73,45 @@ fun DiveCreation() {
     apiRequestLocations.getAllLocations();
     apiRequestDivers.getAllPersons();
 
-    if(boats.value!=null){
+    if (boats.value != null) {
         boatData.value = UsefulTools.parseBoatsJson(boats.value.toString())
     }
 
-    if(locations.value!=null){
-        locationData.value=UsefulTools.parseLocationsJson(locations.value.toString())
+    if (locations.value != null) {
+        locationData.value = UsefulTools.parseLocationsJson(locations.value.toString())
     }
 
-    val pilotsMap = mutableMapOf<Int, String>()
-    val securityMap = mutableMapOf<Int, String>()
-    val directorsMap = mutableMapOf<Int, String>()
+    val pilotsMap = remember { mutableStateOf<Map<Int, String>>(emptyMap()) }
+    val securityMap = remember { mutableStateOf<Map<Int, String>>(emptyMap()) }
+    val directorsMap = remember { mutableStateOf<Map<Int, String>>(emptyMap()) }
 
-    if(allPersons.value!=null){
+    if (allPersons.value != null) {
         val personsJsonString = allPersons.value.toString()
         val personsJsonArray = JSONArray(personsJsonString)
+
+        val pilots = mutableMapOf<Int, String>()
+        val security = mutableMapOf<Int, String>()
+        val directors = mutableMapOf<Int, String>()
+
         for (i in 0 until personsJsonArray.length()) {
             val personJsonObject = personsJsonArray.getJSONObject(i)
             val id = personJsonObject.getInt("id")
             val nom = personJsonObject.getString("nom")
-
             if (personJsonObject.optBoolean("pilote", false)) {
-                pilotsMap[id] = nom
+                pilots[id] = nom
             }
             if (personJsonObject.optBoolean("securite_de_surface", false)) {
-                securityMap[id] = nom
+                security[id] = nom
             }
             if (personJsonObject.optBoolean("directeur_de_section", false)) {
-                directorsMap[id] = nom
+                directors[id] = nom
             }
         }
-    }
+        pilotsMap.value = pilots
+        securityMap.value = security
+        directorsMap.value = directors
 
+    }
 
 
     /* Database connection fetching all levels  */
@@ -131,6 +140,18 @@ fun DiveCreation() {
         mutableIntStateOf(-1)
     }
 
+    val selectedPilotIndex = remember {
+        mutableIntStateOf(-1)
+    }
+
+    val selectedSecurityIndex = remember {
+        mutableIntStateOf(-1)
+    }
+
+    val selectedDirectorIndex = remember {
+        mutableIntStateOf(-1)
+    }
+
     /* Remembers for expanded value */
 
     val expandedBoat = remember {
@@ -149,6 +170,17 @@ fun DiveCreation() {
         mutableStateOf(false)
     }
 
+    val expandedPilot = remember {
+        mutableStateOf(false)
+    }
+
+    val expandedSecurity = remember {
+        mutableStateOf(false)
+    }
+
+    val expandedDirector = remember {
+        mutableStateOf(false)
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -172,7 +204,7 @@ fun DiveCreation() {
                     value = date.value,
                     onValueChange = {
                         date.value = it
-                    }, placeholder = {Text(text = "Format: 2022-02-26")}
+                    }, placeholder = { Text(text = "Format: 2022-02-26") }
                 )
             }
             Row(
@@ -208,8 +240,8 @@ fun DiveCreation() {
                     items = moments,
                     selectedValue = selectedMoment,
                     expandedState = expandedMoment
-                ){
-                    Log.v("Moment",selectedMoment.intValue.toString())
+                ) {
+                    Log.v("Moment", selectedMoment.intValue.toString())
                 }
             }
             Row(
@@ -243,17 +275,21 @@ fun DiveCreation() {
                     selectedValue = selectedLevelIndex,
                     expandedState = expandedLevel
                 ) { index ->
-                    Log.v("Level",levels.value.get(selectedLevelIndex.intValue).name)
+                    Log.v("Level", levels.value.get(selectedLevelIndex.intValue).name)
                 }
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "Pilote: ")
-                TextField(
-                    value = pilote.value,
-                    onValueChange = {
-                        pilote.value = it
+                UsefulTools.DropdownMenuWithState(
+                    items = pilotsMap.value.toList().map { it.second },
+                    selectedValue = selectedPilotIndex,
+                    expandedState = expandedPilot,
+                    onItemSelected = {
+                        val selectedId = pilotsMap.value.keys.toList()[selectedPilotIndex.value]
+                        val selectedNom = pilotsMap.value.values.toList()[selectedPilotIndex.value]
+                        Log.v("Selected Pilot", "ID: $selectedId, Nom: $selectedNom")
                     }
                 )
             }
@@ -261,10 +297,16 @@ fun DiveCreation() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "Sécurité de surface: ")
-                TextField(
-                    value = securiteDeSurface.value,
-                    onValueChange = {
-                        securiteDeSurface.value = it
+                UsefulTools.DropdownMenuWithState(
+                    items = securityMap.value.toList().map { it.second },
+                    selectedValue = selectedSecurityIndex,
+                    expandedState = expandedSecurity,
+                    onItemSelected = {
+                        val selectedId =
+                            securityMap.value.keys.toList()[selectedSecurityIndex.value]
+                        val selectedNom =
+                            securityMap.value.values.toList()[selectedSecurityIndex.value]
+                        Log.v("Selected Security", "ID: $selectedId, Nom: $selectedNom")
                     }
                 )
             }
@@ -272,30 +314,59 @@ fun DiveCreation() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "Directeur de plongée: ")
-                TextField(
-                    value = directeurDePlongee.value,
-                    onValueChange = {
-                        directeurDePlongee.value = it
+                UsefulTools.DropdownMenuWithState(
+                    items = directorsMap.value.toList().map { it.second },
+                    selectedValue = selectedDirectorIndex,
+                    expandedState = expandedDirector,
+                    onItemSelected = {
+                        val selectedId =
+                            directorsMap.value.keys.toList()[selectedDirectorIndex.value]
+                        val selectedNom =
+                            directorsMap.value.values.toList()[selectedDirectorIndex.value]
+                        Log.v("Selected Director", "ID: $selectedId, Nom: $selectedNom")
                     }
                 )
             }
         }
         Button(onClick = {
-            val modifiedJSONObject = UsefulTools.createModifiedJSONObject(
-                date.value,
-                selectedLocationIndex.intValue.toString(),
-                selectedBoatIndex.intValue.toString(),
-                selectedMoment.intValue.toString(),
-                minPlongeurs.value,
-                maxPlongeurs.value,
-                selectedLevelIndex.intValue.toString(),
-                pilote.value,
-                securiteDeSurface.value,
-                directeurDePlongee.value
-            )
+            if ((minPlongeurs.value.toIntOrNull() ?: 0) >= (maxPlongeurs.value.toIntOrNull()
+                    ?: 0)
+            ) {
+                Toast.makeText(
+                    context,
+                    "Le nombre minimum de plongeurs doit être inférieur au nombre maximum",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            if (selectedLocationIndex.intValue == -1 ||
+                selectedBoatIndex.intValue == -1 ||
+                selectedMoment.intValue == -1 ||
+                selectedLevelIndex.intValue == -1 ||
+                selectedPilotIndex.intValue == -1 ||
+                selectedSecurityIndex.intValue == -1 ||
+                selectedDirectorIndex.intValue == -1
+            ) {
 
-            val apiPostRequest = PostRequest(context);
-            apiPostRequest.insertDive(modifiedJSONObject);
+                Toast.makeText(context, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT)
+                    .show()
+            } else {
+
+                val modifiedJSONObject = UsefulTools.createModifiedJSONObject(
+                    date.value,
+                    selectedLocationIndex.intValue.toString(),
+                    selectedBoatIndex.intValue.toString(),
+                    selectedMoment.intValue.toString(),
+                    minPlongeurs.value,
+                    maxPlongeurs.value,
+                    selectedLevelIndex.intValue.toString(),
+                    selectedPilotIndex.intValue.toString(),
+                    selectedSecurityIndex.intValue.toString(),
+                    selectedDirectorIndex.intValue.toString()
+                )
+
+                val apiPostRequest = PostRequest(context);
+                apiPostRequest.insertDive(modifiedJSONObject);
+            }
         }) {
             Text(
                 text = "Enregistrer"
