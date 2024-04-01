@@ -61,9 +61,6 @@ fun DiveList(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, dives: JSONAr
                         }
                     }
                 }
-                Text(
-                    text = sites.toString()
-                )
             }
         }
     )

@@ -361,6 +361,7 @@ fun DiveCreation(updatePage: (Pages) -> Unit) {
                         securityMap.value.keys.toList()[selectedSecurityIndex.intValue].toString(),
                         directorsMap.value.keys.toList()[selectedDirectorIndex.intValue].toString()
                     )
+                    Log.v("ezezdz",modifiedJSONObject.toString())
                     val apiPostRequest = PostRequest(context);
                     apiPostRequest.insertDive(modifiedJSONObject);
                 }
