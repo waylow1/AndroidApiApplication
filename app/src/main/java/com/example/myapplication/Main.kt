@@ -36,6 +36,7 @@ import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.url.GetRequest
 import kotlinx.coroutines.launch
 import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
@@ -236,6 +237,9 @@ class Main : ComponentActivity() {
                                             val chart = view.findViewById<BarChart>(R.id.martin)
                                             chart.data = data
                                             chart.setMaxVisibleValueCount(14)
+                                            val desc = Description()
+                                            desc.text = "Statistiques Océandroid ™"
+                                            chart.description = desc
                                             chart.invalidate()
                                             view
                                         }
