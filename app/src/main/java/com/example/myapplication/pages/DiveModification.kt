@@ -4,7 +4,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -13,14 +16,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import com.example.myapplication.Pages
 import com.example.myapplication.url.PutRequest
 import org.json.JSONObject
 
 @Composable
-fun DiveModification(data: String) {
+fun DiveModification(data: String, updatePage: (Pages) -> Unit) {
     val diveData = JSONObject(data)
+    val focusManager = LocalFocusManager.current
     val id = diveData.getString("id")
     val date = remember { mutableStateOf(diveData.getString("date")) }
     val location = remember { mutableStateOf(diveData.getString("lieu")) }
@@ -63,7 +70,8 @@ fun DiveModification(data: String) {
     }
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -187,22 +195,27 @@ fun DiveModification(data: String) {
                 )
             }
         }
-        Button(onClick = {
-            val modifiedJSONObject = createModifiedJSONObject(
-                date.value,
-                location.value,
-                boat.value,
-                moment.value,
-                minPlongeurs.value,
-                maxPlongeurs.value,
-                niveau.value,
-                pilote.value,
-                securiteDeSurface.value,
-                directeurDePlongee.value
-            )
-            val apiPutRequest = PutRequest(context)
-            apiPutRequest.editDiveById(id, modifiedJSONObject)
-        }) {
+        Button(
+            onClick = {
+                focusManager.clearFocus()
+                val modifiedJSONObject = createModifiedJSONObject(
+                    date.value,
+                    location.value,
+                    boat.value,
+                    moment.value,
+                    minPlongeurs.value,
+                    maxPlongeurs.value,
+                    niveau.value,
+                    pilote.value,
+                    securiteDeSurface.value,
+                    directeurDePlongee.value
+                )
+                val apiPutRequest = PutRequest(context)
+                apiPutRequest.editDiveById(id, modifiedJSONObject)
+                updatePage(Pages.DiveList)
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Magenta)
+        ) {
             Text(
                 text = "Enregistrer"
             )

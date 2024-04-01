@@ -1,6 +1,8 @@
 package com.example.myapplication.pages
 
 import android.util.Log
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,9 +37,6 @@ import org.json.JSONObject
 @Composable
 fun DiverList(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, divers: JSONArray, details: JSONArray){
     Scaffold(
-        topBar = {
-            // topAppBar contents collapsed
-        },
         floatingActionButton = {
             AddDiverButton(updatePage = updatePage)
         },
@@ -78,34 +77,49 @@ fun DiverCard(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, diver: JSONO
     ) {
         Column {
             Row(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = diver.getString("prenom") + " " + diver.getString("nom").uppercase(),
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Left
                 )
-                Text(
-                    text = "  • ",
-                    fontWeight = FontWeight.Bold,
-                    color = (
-                        if(details.getString("actif") == "true") {
-                            Color.Green
-                        } else {
-                            Color.LightGray
-                        }
-                    ),
-                    textAlign = TextAlign.End
-                )
-                Text(
-                    text = (
-                        if(details.getString("actif") == "true") {
-                            "actif"
-                        } else {
-                            "inactif"
-                        }
-                    ),
-                    textAlign = TextAlign.End
+                Row {
+                    Text(
+                        text = "  • ",
+                        fontWeight = FontWeight.Bold,
+                        color = (
+                                if (details.getString("actif") == "true") {
+                                    Color.Green
+                                } else {
+                                    Color.LightGray
+                                }
+                                ),
+                        textAlign = TextAlign.End
+                    )
+                    Text(
+                        text = (
+                                if (details.getString("actif") == "true") {
+                                    "actif"
+                                } else {
+                                    "inactif"
+                                }
+                                ),
+                        textAlign = TextAlign.End
+                    )
+                }
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_delete_forever_24),
+                    contentDescription = "",
+                    modifier = Modifier
+                        .clickable {
+                            val delete = DeleteRequest(context);
+                            delete.deleteDiversById(diver.getString("id"))
+                        },
+                    tint = Color.LightGray
                 )
             }
             Text(
@@ -119,23 +133,13 @@ fun DiverCard(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, diver: JSONO
                     updateId(diver.getString("id").toInt())
                     updatePage(Pages.DiverModification)
                 },
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Magenta)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_edit_24),
-                    contentDescription = "modifier"
-                )
-            }
-            Button(
-                onClick = {
-                    val delete = DeleteRequest(context);
-                    delete.deleteDiversById(diver.getString("id"))
-                },
-                modifier = Modifier.padding(16.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_delete_forever_24),
-                    contentDescription = "supprimer"
+                    contentDescription = "modifier",
+                    tint = Color.White
                 )
             }
         }
@@ -148,9 +152,12 @@ fun AddDiverButton(updatePage: (Pages) -> Unit) {
         onClick = {
             updatePage(Pages.DiverCreation)
         },
-        containerColor = Color.Green,
-
+        containerColor = Color.Magenta
         ) {
-        Icon(Icons.Filled.Add, "Floating action button.")
+        Icon(
+            Icons.Filled.Add,
+            "Floating action button.",
+            tint = Color.White
+        )
     }
 }

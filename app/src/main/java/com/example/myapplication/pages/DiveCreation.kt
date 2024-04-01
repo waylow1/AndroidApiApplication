@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
@@ -23,9 +26,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.Functions.UsefulTools
+import com.example.myapplication.Pages
 import com.example.myapplication.bdd.Levels
 import com.example.myapplication.bdd.MyAppDatabase
 import com.example.myapplication.url.GetRequest
@@ -37,12 +43,11 @@ import org.json.JSONObject
 import kotlin.reflect.typeOf
 
 @Composable
-fun DiveCreation() {
+fun DiveCreation(updatePage: (Pages) -> Unit) {
 
     val context = LocalContext.current
-
+    val focusManager = LocalFocusManager.current
     val moments = listOf("Matin", "Après-midi", "Soir")
-
     val date = remember { mutableStateOf("") }
     val minPlongeurs = remember { mutableStateOf("") }
     val maxPlongeurs = remember { mutableStateOf("") }
@@ -175,7 +180,8 @@ fun DiveCreation() {
     }
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -319,47 +325,52 @@ fun DiveCreation() {
                 )
             }
         }
-        Button(onClick = {
-            if ((minPlongeurs.value.toIntOrNull() ?: 0) >= (maxPlongeurs.value.toIntOrNull()
-                    ?: 0)
-            ) {
-                Toast.makeText(
-                    context,
-                    "Le nombre minimum de plongeurs doit être inférieur au nombre maximum",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            if (selectedLocationIndex.intValue == -1 ||
-                selectedBoatIndex.intValue == -1 ||
-                selectedMoment.intValue == -1 ||
-                selectedLevelIndex.intValue == -1 ||
-                selectedPilotIndex.intValue == -1 ||
-                selectedSecurityIndex.intValue == -1 ||
-                selectedDirectorIndex.intValue == -1
-            ) {
+        Button(
+            onClick = {
+                focusManager.clearFocus()
+                if ((minPlongeurs.value.toIntOrNull() ?: 0) >= (maxPlongeurs.value.toIntOrNull()
+                        ?: 0)
+                ) {
+                    Toast.makeText(
+                        context,
+                        "Le nombre minimum de plongeurs doit être inférieur au nombre maximum",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                if (selectedLocationIndex.intValue == -1 ||
+                    selectedBoatIndex.intValue == -1 ||
+                    selectedMoment.intValue == -1 ||
+                    selectedLevelIndex.intValue == -1 ||
+                    selectedPilotIndex.intValue == -1 ||
+                    selectedSecurityIndex.intValue == -1 ||
+                    selectedDirectorIndex.intValue == -1
+                ) {
 
-                Toast.makeText(context, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT)
-                    .show()
-            } else {
+                    Toast.makeText(context, "Veuillez remplir tous les champs", Toast.LENGTH_SHORT)
+                        .show()
+                } else {
 
-                val modifiedJSONObject = UsefulTools.createModifiedJSONObject(
-                    date.value,
-                    selectedLocationIndex.intValue.toString(),
-                    selectedBoatIndex.intValue.toString(),
-                    (selectedMoment.intValue+1).toString(),
-                    minPlongeurs.value,
-                    maxPlongeurs.value,
-                    selectedLevelIndex.intValue.toString(),
-                    selectedPilotIndex.intValue.toString(),
-                    selectedSecurityIndex.intValue.toString(),
-                    selectedDirectorIndex.intValue.toString()
-                )
+                    val modifiedJSONObject = UsefulTools.createModifiedJSONObject(
+                        date.value,
+                        selectedLocationIndex.intValue.toString(),
+                        selectedBoatIndex.intValue.toString(),
+                        (selectedMoment.intValue+1).toString(),
+                        minPlongeurs.value,
+                        maxPlongeurs.value,
+                        selectedLevelIndex.intValue.toString(),
+                        selectedPilotIndex.intValue.toString(),
+                        selectedSecurityIndex.intValue.toString(),
+                        selectedDirectorIndex.intValue.toString()
+                    )
 
-                Log.v("esttez",modifiedJSONObject.toString())
-                val apiPostRequest = PostRequest(context);
-                apiPostRequest.insertDive(modifiedJSONObject);
-            }
-        }) {
+                    Log.v("esttez",modifiedJSONObject.toString())
+                    val apiPostRequest = PostRequest(context);
+                    apiPostRequest.insertDive(modifiedJSONObject);
+                }
+                updatePage(Pages.DiveList)
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Magenta)
+        ) {
             Text(
                 text = "Enregistrer"
             )

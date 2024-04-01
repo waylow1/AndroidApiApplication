@@ -9,9 +9,12 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -21,7 +24,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.myapplication.Functions.UsefulTools
 import com.example.myapplication.bdd.MyAppDatabase
-import com.example.myapplication.components.NavigationDrawer
+import com.example.myapplication.components.Navigation
+import com.example.myapplication.pages.AddDiveButton
 import com.example.myapplication.pages.DiveCreation
 import com.example.myapplication.pages.DiveList
 import com.example.myapplication.pages.DiveModification
@@ -56,7 +60,18 @@ class Main : ComponentActivity() {
             if(page.value == Pages.DiverList) { //home page then quit
                 finish()
             } else {
-                page.value = Pages.DiverList
+                if(page.value == Pages.DiveList || page.value == Pages.Stats) {
+                    page.value = Pages.DiverList
+                }
+
+                else {
+                    if(page.value == Pages.DiverCreation || page.value == Pages.DiverModification) {
+                        page.value = Pages.DiverList
+                    }
+                    else {
+                        page.value = Pages.DiveList
+                    }
+                }
             }
         }
     }
@@ -102,104 +117,134 @@ class Main : ComponentActivity() {
             val dive = apiResultForADive.getLiveData().observeAsState()
 
             Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .padding(top = 31.dp)
-                    ) {
-                        when(page.value) {
-                            Pages.DiverList -> {
-                                apiResultDivers.getAllDivers()
-                                apiResultDetails.getDiverDetails()
-                                if(divers.value != null && details.value != null){
-                                    DiverList(
-                                        updatePage = {
-                                                newPage: Pages -> page.value = newPage
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                Scaffold(
+                    bottomBar = {
+                        Navigation(
+                            page.value,
+                            updatePage = {
+                                newPage: Pages -> page.value = newPage
+                            }
+                        )
+                    },
+                    content = { padding ->
+                        Box(
+                            modifier = Modifier
+                                .padding(padding)
+                                .padding(top = 31.dp)
+                        ) {
+                            when(page.value) {
+                                Pages.DiverList -> {
+                                    apiResultDivers.getAllDivers()
+                                    apiResultDetails.getDiverDetails()
+                                    if(divers.value != null && details.value != null){
+                                        DiverList(
+                                            updatePage = {
+                                                    newPage: Pages -> page.value = newPage
                                                 apiResultDiversId.getDiverById(diverID.intValue.toString())
-                                        },
-                                        updateId = {
-                                                newId: Int -> diverID.intValue = newId
-                                        },
-                                        divers = JSONArray(divers.value!!),
-                                        details = JSONArray(details.value!!)
-                                    )
-                                }
-                            }
-                            Pages.DiverModification -> {
-                                if(diver.value != null) {
-                                    DiverModification(diver.value!!)
-                                }else{
-                                    CircularProgressIndicator()
-                                }
-                            }
-                            Pages.DiverCreation -> DiverCreation()
-                            Pages.DiveList -> {
-                                apiResultDives.getAllDives()
-                                apiResultLocation.getAllLocations()
-                                if(dives.value != null && sites.value != null) {
-                                    DiveList(
-                                        updatePage = {
-                                                newPage: Pages -> page.value = newPage
-                                                apiResultForADive.getDiveById(diveID.intValue.toString())
-                                        },
-                                        updateId = {
-                                                newId: Int -> diveID.intValue = newId
-                                        },
-                                        dives = JSONArray(dives.value!!),
-                                        sites = JSONArray(sites.value!!)
-                                    )
-                                }
-                            }
-                            Pages.DiveModification -> {
-                                if(dive.value != null){
-                                    DiveModification(dive.value!!)
-                                }else{
-                                    CircularProgressIndicator()
-                                }
-                            }
-                            Pages.DiveCreation -> DiveCreation()
-                            Pages.Stats -> {
-
-                                val diversJson = JSONArray(divers.value!!)
-                                val statData = ArrayList<BarEntry>()
-
-                                for( i in 0 until 14){
-                                    var count = 0
-
-                                    for( j in 0 until diversJson.length()){
-                                        val currentDiver = diversJson.getJSONObject(j)
-                                        if(currentDiver.getString("niveau").toInt() == i) {
-                                            count++
-                                        }
+                                            },
+                                            updateId = {
+                                                    newId: Int -> diverID.intValue = newId
+                                            },
+                                            divers = JSONArray(divers.value!!),
+                                            details = JSONArray(details.value!!)
+                                        )
                                     }
-                                    val entry = BarEntry(i.toFloat(), count.toFloat())
-                                    statData.add(entry)
                                 }
-
-                                val dataSet = BarDataSet(statData, "Nombre de plongeur par niveau")
-                                val data = BarData(dataSet)
-
-                                AndroidView(
-                                    factory = {
-                                        context ->
-                                        val view = LayoutInflater.from(context).inflate(R.layout.stats, null, true)
-                                        val chart = view.findViewById<BarChart>(R.id.martin)
-                                        chart.data = data
-                                        chart.setMaxVisibleValueCount(14)
-                                        chart.invalidate()
-                                        view
+                                Pages.DiverModification -> {
+                                    if(diver.value != null) {
+                                        DiverModification(
+                                            diver.value!!,
+                                            updatePage = {
+                                                newPage: Pages -> page.value = newPage
+                                            apiResultForADive.getDiveById(diveID.intValue.toString())
+                                        }
+                                    )
+                                    } else {
+                                        CircularProgressIndicator()
+                                    }
+                                }
+                                Pages.DiverCreation -> DiverCreation(
+                                    updatePage = {
+                                            newPage: Pages -> page.value = newPage
+                                        apiResultForADive.getDiveById(diveID.intValue.toString())
                                     }
                                 )
+                                Pages.DiveList -> {
+                                    apiResultDives.getAllDives()
+                                    apiResultLocation.getAllLocations()
+                                    if(dives.value != null && sites.value != null) {
+                                        DiveList(
+                                            updatePage = {
+                                                    newPage: Pages -> page.value = newPage
+                                                apiResultForADive.getDiveById(diveID.intValue.toString())
+                                            },
+                                            updateId = {
+                                                    newId: Int -> diveID.intValue = newId
+                                            },
+                                            dives = JSONArray(dives.value!!),
+                                            sites = JSONArray(sites.value!!)
+                                        )
+                                    }
+                                }
+                                Pages.DiveModification -> {
+                                    if(dive.value != null){
+                                        DiveModification(
+                                            dive.value!!,
+                                            updatePage = {
+                                                    newPage: Pages -> page.value = newPage
+                                                apiResultForADive.getDiveById(diveID.intValue.toString())
+                                            }
+                                        )
+                                    } else {
+                                        CircularProgressIndicator()
+                                    }
+                                }
+                                Pages.DiveCreation -> DiveCreation(
+                                    updatePage = {
+                                            newPage: Pages -> page.value = newPage
+                                        apiResultForADive.getDiveById(diveID.intValue.toString())
+                                    }
+                                )
+                                Pages.Stats -> {
+
+                                    val diversJson = JSONArray(divers.value!!)
+                                    val statData = ArrayList<BarEntry>()
+
+                                    for( i in 0 until 14){
+                                        var count = 0
+
+                                        for( j in 0 until diversJson.length()){
+                                            val currentDiver = diversJson.getJSONObject(j)
+                                            if(currentDiver.getString("niveau").toInt() == i) {
+                                                count++
+                                            }
+                                        }
+                                        val entry = BarEntry(i.toFloat(), count.toFloat())
+                                        statData.add(entry)
+                                    }
+
+                                    val dataSet = BarDataSet(statData, "Nombre de plongeur par niveau")
+                                    val data = BarData(dataSet)
+
+                                    AndroidView(
+                                        factory = {
+                                                context ->
+                                            val view = LayoutInflater.from(context).inflate(R.layout.stats, null, true)
+                                            val chart = view.findViewById<BarChart>(R.id.martin)
+                                            chart.data = data
+                                            chart.setMaxVisibleValueCount(14)
+                                            chart.invalidate()
+                                            view
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
-                    NavigationDrawer(
-                        updatePage = {
-                                newPage: Pages -> page.value = newPage
-                        }
-                    )
+                )
                 }
             }
         }

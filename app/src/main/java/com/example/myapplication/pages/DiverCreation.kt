@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -20,7 +21,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.Pages
 import com.example.myapplication.url.PostRequest
@@ -29,13 +32,14 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 @Composable
-fun DiverCreation() {
+fun DiverCreation(updatePage: (Pages) -> Unit) {
     val name = remember{ mutableStateOf("") }
     val firstname = remember{ mutableStateOf("") }
     val date = remember{ mutableStateOf("") }
     val email = remember{ mutableStateOf("") }
     val level = remember{ mutableStateOf("") }
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
 
     fun createModifiedJSONObject(): JSONObject {
         val modifiedData = JSONObject()
@@ -117,11 +121,16 @@ fun DiverCreation() {
                 )
             }
         }
-        Button(onClick = {
-            val modifiedJSONObject = createModifiedJSONObject()
-            var apiPostRequest = PostRequest(context);
-            apiPostRequest.insertDiver(modifiedJSONObject);
-        }) {
+        Button(
+            onClick = {
+                focusManager.clearFocus()
+                val modifiedJSONObject = createModifiedJSONObject()
+                var apiPostRequest = PostRequest(context)
+                apiPostRequest.insertDiver(modifiedJSONObject)
+                updatePage(Pages.DiverList)
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Magenta)
+        ) {
             Text(
                 text = "Inscrire"
             )

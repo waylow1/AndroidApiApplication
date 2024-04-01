@@ -1,5 +1,7 @@
 package com.example.myapplication.pages
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,9 +36,6 @@ import org.json.JSONObject
 fun DiveList(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, dives: JSONArray, sites: JSONArray){
 
     Scaffold(
-        topBar = {
-            // topAppBar contents collapsed
-        },
         floatingActionButton = {
             AddDiveButton(updatePage = updatePage)
         },
@@ -83,39 +82,55 @@ fun DiveCard(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, dive: JSONObj
     ) {
         Column {
             Row(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = dive.getString("date"),
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Left
                 )
-                Text(
-                    text = "  • ",
-                    fontWeight = FontWeight.Bold,
-                    color = (
-                        if(dive.getString("active") == "true") {
-                            Color.Green
-                        } else {
-                            Color.LightGray
-                        }
-                    ),
-                    textAlign = TextAlign.End
-                )
-                Text(
-                    text = (
-                        if(dive.getString("active") == "true") {
-                            "active"
-                        } else {
-                            "inactive"
-                        }
-                    ),
-                    textAlign = TextAlign.End
+                Row {
+                    Text(
+                        text = "  • ",
+                        fontWeight = FontWeight.Bold,
+                        color = (
+                                if(dive.getString("active") == "true") {
+                                    Color.Green
+                                } else {
+                                    Color.LightGray
+                                }
+                                ),
+                        textAlign = TextAlign.End
+                    )
+                    Text(
+                        text = (
+                                if(dive.getString("active") == "true") {
+                                    "active"
+                                } else {
+                                    "inactive"
+                                }
+                                ),
+                        textAlign = TextAlign.End
+                    )
+                }
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_delete_forever_24),
+                    contentDescription = "",
+                    modifier = Modifier
+                        .clickable {
+                            val delete = DeleteRequest(context);
+                            delete.deleteDiveById(dive.getString("id"))
+                        },
+                    tint = Color.LightGray
                 )
             }
             Text(
-                text = site.getString("libelle"), /* getString("libelle") */
-                modifier = Modifier.padding(start = 16.dp),
+                text = site.getString("libelle"),
+                modifier = Modifier
+                    .padding(start = 16.dp),
                 color = Color.Gray,
                 textAlign = TextAlign.Left
             )
@@ -124,23 +139,14 @@ fun DiveCard(updatePage: (Pages) -> Unit, updateId: (Int) -> Unit, dive: JSONObj
                     updateId(dive.getString("id").toInt())
                     updatePage(Pages.DiveModification)
                 },
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .padding(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Magenta)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_edit_24),
-                    contentDescription = "modifier"
-                )
-            }
-            Button(
-                onClick = {
-                    val delete = DeleteRequest(context);
-                    delete.deleteDiveById(dive.getString("id"))
-                },
-                modifier = Modifier.padding(16.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_delete_forever_24),
-                    contentDescription = "supprimer"
+                    contentDescription = "modifier",
+                    tint = Color.White
                 )
             }
         }
@@ -153,9 +159,13 @@ fun AddDiveButton(updatePage: (Pages) -> Unit) {
         onClick = {
             updatePage(Pages.DiveCreation)
         },
-        containerColor = Color.Green,
-
+        containerColor = Color.Magenta,
+        contentColor = Color.White
         ) {
-        Icon(Icons.Filled.Add, "Floating action button.")
+        Icon(
+            Icons.Filled.Add,
+            "Floating action button.",
+            tint = Color.White
+        )
     }
 }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -20,7 +21,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.Pages
 import com.example.myapplication.url.PutRequest
@@ -28,7 +31,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 @Composable
-fun DiverModification(data: String) {
+fun DiverModification(data: String, updatePage: (Pages) -> Unit) {
     val diverData = JSONObject(data);
     val id = diverData.getString("id")
     val name = remember{ mutableStateOf(diverData.getString("nom")) }
@@ -36,7 +39,7 @@ fun DiverModification(data: String) {
     val date = remember{ mutableStateOf(diverData.getString("date_certificat_medical")) }
     val email = remember{ mutableStateOf(diverData.getString("email")) }
     val level = remember{ mutableStateOf(diverData.getString("niveau")) }
-
+    val focusManager = LocalFocusManager.current
     val context = LocalContext.current;
 
     fun createModifiedJSONObject(): JSONObject {
@@ -119,12 +122,16 @@ fun DiverModification(data: String) {
                 )
             }
         }
-        Button(onClick = {
-
-            val modifiedJSONObject = createModifiedJSONObject()
-            var apiPutRequest = PutRequest(context);
-            apiPutRequest.editDiverById(id,modifiedJSONObject);
-        }) {
+        Button(
+            onClick = {
+                focusManager.clearFocus()
+                val modifiedJSONObject = createModifiedJSONObject()
+                var apiPutRequest = PutRequest(context)
+                apiPutRequest.editDiverById(id,modifiedJSONObject)
+                updatePage(Pages.DiverList)
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Magenta)
+        ) {
             Text(
                 text = "Enregister"
             )
