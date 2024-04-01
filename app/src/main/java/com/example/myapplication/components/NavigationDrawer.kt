@@ -50,7 +50,8 @@ fun NavigationDrawer(
                         text = "Océandroid",
                         modifier = Modifier
                             .padding(2.dp),
-                        fontSize = 30.sp
+                        fontSize = 30.sp,
+                        color = Color.White
                     )
                     Button(
                         modifier = Modifier.padding(start = 16.dp),
@@ -75,7 +76,8 @@ fun NavigationDrawer(
                             }
                         }
                         .padding(top = 4.dp),
-                    fontSize = 18.sp
+                    fontSize = 18.sp,
+                    color = Color.White
                 )
                 Text(
                     text = "Liste des plongées",
@@ -87,7 +89,21 @@ fun NavigationDrawer(
                             }
                         }
                         .padding(top = 4.dp),
-                    fontSize = 18.sp
+                    fontSize = 18.sp,
+                    color = Color.White
+                )
+                Text(
+                    text = "Statistiques",
+                    modifier = Modifier
+                        .clickable {
+                            updatePage(Pages.Stats)
+                            scope.launch {
+                                drawerState.close()
+                            }
+                        }
+                        .padding(top = 4.dp),
+                    fontSize = 18.sp,
+                    color = Color.White
                 )
             }
         },

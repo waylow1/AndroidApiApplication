@@ -11,7 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.myapplication.bdd.Levels
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 
 class UsefulTools {
@@ -111,6 +113,25 @@ class UsefulTools {
                 }
             }
             return locations
+        }
+
+        fun parseJsonToLevels(json: String): List<Levels> {
+            val levelsList = mutableListOf<Levels>()
+
+            try {
+                val jsonArray = JSONArray(json)
+                for (i in 0 until jsonArray.length()) {
+                    val jsonObject = jsonArray.getJSONObject(i)
+                    val id = jsonObject.getInt("id")
+                    val name = jsonObject.getString("libelle")
+                    val level = Levels(id, name)
+                    levelsList.add(level)
+                }
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+
+            return levelsList
         }
 
     }
