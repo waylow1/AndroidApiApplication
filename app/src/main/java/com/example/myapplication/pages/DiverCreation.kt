@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import com.example.myapplication.Functions.UsefulTools
 import com.example.myapplication.Pages
 import com.example.myapplication.url.PostRequest
 import com.example.myapplication.url.PutRequest
@@ -48,6 +49,19 @@ fun DiverCreation(updatePage: (Pages) -> Unit) {
         modifiedData.put("date_certificat_medical", date.value)
         modifiedData.put("email", email.value)
         modifiedData.put("niveau", level.value)
+
+        val password = UsefulTools.generateRandomPassword();
+        val licence = UsefulTools.generateRandomLicense();
+
+        modifiedData.put("licence", licence)
+        modifiedData.put("forfait", "75")
+        modifiedData.put("directeur_de_section", false)
+        modifiedData.put("secretaire", false)
+        modifiedData.put("securite_de_surface", false)
+        modifiedData.put("pilote", false)
+        modifiedData.put("pass", password)
+        modifiedData.put("pass_confirmation", password)
+
         return modifiedData
     }
 
@@ -106,7 +120,7 @@ fun DiverCreation(updatePage: (Pages) -> Unit) {
                     value = date.value,
                     onValueChange = {
                         date.value = it
-                    }
+                    }, placeholder = {Text(text ="2002-10-10")}
                 )
             }
             Row(

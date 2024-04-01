@@ -133,6 +133,18 @@ class UsefulTools {
 
             return levelsList
         }
+        fun generateRandomPassword(length: Int = 12): String {
+            val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9') + listOf('_', '-', '@', '#', '$', '%', '&') // Caractères autorisés dans le mot de passe
+            return (1..length)
+                .map { allowedChars.random() }
+                .joinToString("")
+        }
 
+        fun generateRandomLicense(length: Int = 18): String {
+            val allowedChars = ('0'..'9')
+            return (1..length)
+                .map { allowedChars.random() }
+                .joinToString("")
+        }
     }
 }

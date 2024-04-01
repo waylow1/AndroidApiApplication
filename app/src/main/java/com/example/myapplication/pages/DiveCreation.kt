@@ -108,7 +108,6 @@ fun DiveCreation(updatePage: (Pages) -> Unit) {
         pilotsMap.value = pilots
         securityMap.value = security
         directorsMap.value = directors
-
     }
 
     /* Database connection fetching all levels  */
@@ -328,7 +327,7 @@ fun DiveCreation(updatePage: (Pages) -> Unit) {
         Button(
             onClick = {
                 focusManager.clearFocus()
-                if ((minPlongeurs.value.toIntOrNull() ?: 0) >= (maxPlongeurs.value.toIntOrNull()
+                if ((minPlongeurs.value.toIntOrNull() ?: 0) > (maxPlongeurs.value.toIntOrNull()
                         ?: 0)
                 ) {
                     Toast.makeText(
@@ -352,18 +351,16 @@ fun DiveCreation(updatePage: (Pages) -> Unit) {
 
                     val modifiedJSONObject = UsefulTools.createModifiedJSONObject(
                         date.value,
-                        selectedLocationIndex.intValue.toString(),
-                        selectedBoatIndex.intValue.toString(),
+                        boatData.value[selectedBoatIndex.intValue].first.toString(),
+                        locationData.value[selectedLocationIndex.intValue].first.toString(),
                         (selectedMoment.intValue+1).toString(),
                         minPlongeurs.value,
                         maxPlongeurs.value,
                         selectedLevelIndex.intValue.toString(),
-                        selectedPilotIndex.intValue.toString(),
-                        selectedSecurityIndex.intValue.toString(),
-                        selectedDirectorIndex.intValue.toString()
+                        pilotsMap.value.keys.toList()[selectedPilotIndex.intValue].toString(),
+                        securityMap.value.keys.toList()[selectedSecurityIndex.intValue].toString(),
+                        directorsMap.value.keys.toList()[selectedDirectorIndex.intValue].toString()
                     )
-
-                    Log.v("esttez",modifiedJSONObject.toString())
                     val apiPostRequest = PostRequest(context);
                     apiPostRequest.insertDive(modifiedJSONObject);
                 }
