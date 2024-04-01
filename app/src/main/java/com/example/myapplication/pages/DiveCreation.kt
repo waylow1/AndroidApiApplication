@@ -46,11 +46,6 @@ fun DiveCreation() {
     val date = remember { mutableStateOf("") }
     val minPlongeurs = remember { mutableStateOf("") }
     val maxPlongeurs = remember { mutableStateOf("") }
-    val pilote = remember { mutableStateOf("") }
-    val securiteDeSurface = remember { mutableStateOf("") }
-    val directeurDePlongee = remember { mutableStateOf("") }
-
-    /* ApiRequest creations for  all Boats and all Locations */
 
     /* ApiRequest Object */
     val apiRequestAllBoats = GetRequest(context);
@@ -60,13 +55,15 @@ fun DiveCreation() {
     /* LiveData observer */
     val boats = apiRequestAllBoats.getLiveData().observeAsState();
     val locations = apiRequestLocations.getLiveData().observeAsState();
-
     val allPersons = apiRequestDivers.getLiveData().observeAsState();
 
-    /* List rembembers */
+    /* Data rembembers */
     val boatData = remember { mutableStateOf<List<Pair<Int, String>>>(emptyList()) }
     val locationData = remember { mutableStateOf<List<Pair<Int, String>>>(emptyList()) }
 
+    val pilotsMap = remember { mutableStateOf<Map<Int, String>>(emptyMap()) }
+    val securityMap = remember { mutableStateOf<Map<Int, String>>(emptyMap()) }
+    val directorsMap = remember { mutableStateOf<Map<Int, String>>(emptyMap()) }
 
     /* Fetching Api */
     apiRequestAllBoats.getAllBoats();
@@ -80,10 +77,6 @@ fun DiveCreation() {
     if (locations.value != null) {
         locationData.value = UsefulTools.parseLocationsJson(locations.value.toString())
     }
-
-    val pilotsMap = remember { mutableStateOf<Map<Int, String>>(emptyMap()) }
-    val securityMap = remember { mutableStateOf<Map<Int, String>>(emptyMap()) }
-    val directorsMap = remember { mutableStateOf<Map<Int, String>>(emptyMap()) }
 
     if (allPersons.value != null) {
         val personsJsonString = allPersons.value.toString()
@@ -112,7 +105,6 @@ fun DiveCreation() {
         directorsMap.value = directors
 
     }
-
 
     /* Database connection fetching all levels  */
     val db = MyAppDatabase.getDatabase(context)
@@ -228,7 +220,6 @@ fun DiveCreation() {
                     selectedValue = selectedBoatIndex,
                     expandedState = expandedBoat
                 ) { index ->
-                    // Logique à exécuter lorsque le bateau est sélectionné
                     Log.v("Selected Boat", boatData.value[index].toString())
                 }
             }
@@ -274,8 +265,8 @@ fun DiveCreation() {
                     items = levels.value.map { it.name },
                     selectedValue = selectedLevelIndex,
                     expandedState = expandedLevel
-                ) { index ->
-                    Log.v("Level", levels.value.get(selectedLevelIndex.intValue).name)
+                ) {
+                    Log.v("Level", levels.value[selectedLevelIndex.intValue].name)
                 }
             }
             Row(
@@ -287,8 +278,8 @@ fun DiveCreation() {
                     selectedValue = selectedPilotIndex,
                     expandedState = expandedPilot,
                     onItemSelected = {
-                        val selectedId = pilotsMap.value.keys.toList()[selectedPilotIndex.value]
-                        val selectedNom = pilotsMap.value.values.toList()[selectedPilotIndex.value]
+                        val selectedId = pilotsMap.value.keys.toList()[selectedPilotIndex.intValue]
+                        val selectedNom = pilotsMap.value.values.toList()[selectedPilotIndex.intValue]
                         Log.v("Selected Pilot", "ID: $selectedId, Nom: $selectedNom")
                     }
                 )
@@ -303,9 +294,9 @@ fun DiveCreation() {
                     expandedState = expandedSecurity,
                     onItemSelected = {
                         val selectedId =
-                            securityMap.value.keys.toList()[selectedSecurityIndex.value]
+                            securityMap.value.keys.toList()[selectedSecurityIndex.intValue]
                         val selectedNom =
-                            securityMap.value.values.toList()[selectedSecurityIndex.value]
+                            securityMap.value.values.toList()[selectedSecurityIndex.intValue]
                         Log.v("Selected Security", "ID: $selectedId, Nom: $selectedNom")
                     }
                 )
@@ -320,9 +311,9 @@ fun DiveCreation() {
                     expandedState = expandedDirector,
                     onItemSelected = {
                         val selectedId =
-                            directorsMap.value.keys.toList()[selectedDirectorIndex.value]
+                            directorsMap.value.keys.toList()[selectedDirectorIndex.intValue]
                         val selectedNom =
-                            directorsMap.value.values.toList()[selectedDirectorIndex.value]
+                            directorsMap.value.values.toList()[selectedDirectorIndex.intValue]
                         Log.v("Selected Director", "ID: $selectedId, Nom: $selectedNom")
                     }
                 )
