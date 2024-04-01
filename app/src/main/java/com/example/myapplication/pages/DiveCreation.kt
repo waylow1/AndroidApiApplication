@@ -355,7 +355,7 @@ fun DiveCreation() {
                     date.value,
                     selectedLocationIndex.intValue.toString(),
                     selectedBoatIndex.intValue.toString(),
-                    selectedMoment.intValue.toString(),
+                    (selectedMoment.intValue+1).toString(),
                     minPlongeurs.value,
                     maxPlongeurs.value,
                     selectedLevelIndex.intValue.toString(),
@@ -364,6 +364,7 @@ fun DiveCreation() {
                     selectedDirectorIndex.intValue.toString()
                 )
 
+                Log.v("esttez",modifiedJSONObject.toString())
                 val apiPostRequest = PostRequest(context);
                 apiPostRequest.insertDive(modifiedJSONObject);
             }
